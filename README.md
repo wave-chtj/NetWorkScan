@@ -13,7 +13,7 @@
 ```
 
 ### 2.2 操作步骤
--找到com.goldze.main.service.NetWorkService 在reSetAndReboot()方法中选择commandToReset对应的命令
+//找到module-main：com.goldze.main.service.NetWorkService 在reSetAndReboot()方法中选择commandToReset对应的命令
 ```java
  private String[] commandToReset = new String[]{
             "echo 1 > /sys/class/spi_sim_ctl/state",//rk3399
@@ -26,20 +26,10 @@
             @Override
             public void accept(String s) throws Exception {
                 if (s.equals("reset")) {
-                    KLog.e(TAG, "执行4G模块复位");
+                    ....
                     ShellUtils.CommandResult resetCommand = ShellUtils.execCommand(commandToReset[1], false);//在这里设置commandToReset对应的命令
-                    KLog.e("resetCommand result:" + resetCommand.result + ",successMeg:" + resetCommand.successMsg + ",errMeg:" + resetCommand.errorMsg);
-
-                    String message = "";
-                    if (resetCommand.result == 0) {
-                        message = "复位成功";
-                    } else {
-                        message = "复位失败";
-                    }
-                    KLog.e(TAG, message);
-                    initialCount = 0;//清除次数 重新再次计算次数
+                    .....
                 } else {
-
                 }
             }
         });
@@ -47,11 +37,11 @@
 ```
 ## 3.updateLog
 ### version 1.0.2
--设置开启启动时不显示Activity，只加载服务
+-设置开机启动时不显示Activity，只加载后台检测网络服务
 ### version 1.0.1
-- 修改并优化部分代码，周期和判定次数的设置重启
+-修改并优化部分代码，周期和判定次数的设置重启
 ### version 1.0
-
+-第一次提交
 ## License
 
     Copyright 2018 chtj
