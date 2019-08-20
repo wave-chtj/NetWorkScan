@@ -65,8 +65,8 @@ public class NetWorkService extends Service {
             @Override
             public void onNetDisConnect() {
                 KLog.e(TAG,"网络已断开 正在刷新线程状态");
-                isRunningTask2 = false;//关闭线程2
-                isRunningTask1 = true;//开启线程1
+                isRunningTask2=true;
+                isRunningTask1=false;
             }
         };
         //开启广播去监听 网络 改变事件
@@ -125,7 +125,15 @@ public class NetWorkService extends Service {
             public void run() {
                 if (isRunningTask2) {
                     int netStatus = NetworkUtil.getNetState(NetWorkService.this);
-                    KLog.e(TAG,"2当前网络状态：" + netStatus);
+                    String message="";
+                    if (netStatus == NetworkUtil.NET_CNNT_BAIDU_TIMEOUT) {
+                        message="1网络连接超时";
+                    } else if (netStatus == NetworkUtil.NET_NOT_PREPARE) {
+                        message="1网络未准备好";
+                    } else {
+                        message="1网络异常";
+                    }
+                    KLog.e(TAG,"2当前网络状态：" + message);
                     if (netStatus == NetworkUtil.NET_CNNT_BAIDU_OK) {
                         initialCount = 0;
                         //执行终止命令
@@ -151,13 +159,13 @@ public class NetWorkService extends Service {
         KLog.e(TAG,"初始化循环判断网络的间隔时间为：" + cycleInterval);
         isRunningTask1 = true;
         timer1 = new Timer();
-        timer1.schedule(timerTask1, 1000, /*cycleInterval* 60* 1000*/5000);
+        timer1.schedule(timerTask1, 1000, cycleInterval* 60* 1000);
 
         netUserSetErrCount= SPUtils.getInstance().getInt("errScanCount", 2);
         KLog.e(TAG,"2设置的扫描扫描次数为:" + netUserSetErrCount);
         isRunningTask2 = false;
         timer2 = new Timer();
-        timer2.schedule(timerTask2, 1000, 1 *60 * 1000);
+        timer2.schedule(timerTask2, 1000, 2 *60 * 1000);
     }
 
     /**
@@ -169,8 +177,7 @@ public class NetWorkService extends Service {
             public void accept(String s) throws Exception {
                 if (s.equals("reset")) {
                     KLog.e(TAG,"执行4G模块复位");
-
-                    ShellUtils.CommandResult resetCommand = ShellUtils.execCommand("echo 1 > /sys/class/spi_sim_ctl/state", false);
+                    ShellUtils.CommandResult resetCommand = ShellUtils.execCommand(/*"echo 1 > /sys/class/spi_sim_ctl/state"*/"echo 1 > /sys/devices/platform/imx6q_sim/sim_sysfs/state", false);
                     KLog.e("resetCommand result:" + resetCommand.result + ",successMeg:" + resetCommand.successMsg + ",errMeg:" + resetCommand.errorMsg);
 
                     String message="";
@@ -201,7 +208,8 @@ public class NetWorkService extends Service {
             public void accept(NetTimerParamEntity netTimerParamEntity) throws Exception {
                 //重新调用 以重新获取更新设置的参数
                 KLog.e(TAG,"执行线程重启的方法");
-                initTimerTask();
+                cancelAllTask();//先关闭线程
+                initTimerTask();//重启线程
             }
         });
     }

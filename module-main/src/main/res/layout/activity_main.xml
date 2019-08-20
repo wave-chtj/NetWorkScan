@@ -21,12 +21,14 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="循环判断网络时间" />
+            android:textColor="@color/black"
+            android:text="网络检查间隔时间(分钟)" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
+            android:background="@drawable/btn_radius_bg"
             android:orientation="horizontal">
 
             <Spinner
@@ -42,12 +44,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:text="网络异常扫描错误" />
+            android:textColor="@color/black"
+            android:text="网络状态异常扫描次数" />
+         <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+             android:textSize="12sp"
+            android:layout_marginTop="15dp"
+            android:text="例如：连接超时,连接失败,未准备好" />
+
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
+            android:background="@drawable/btn_radius_bg"
             android:orientation="horizontal">
 
             <Spinner
@@ -63,7 +74,7 @@
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:layout_marginTop="25dp"
-            android:text="保存"
+            android:text="保存并重新启用"
             binding:onClickCommand="@{viewModel.setParamClick}" />
 
         <Button

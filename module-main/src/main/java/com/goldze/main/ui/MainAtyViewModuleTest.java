@@ -20,8 +20,8 @@ import me.goldze.mvvmhabit.bus.RxBus;
 import me.goldze.mvvmhabit.utils.KLog;
 import me.goldze.mvvmhabit.utils.SPUtils;
 
-public class MainAtyViewModule extends BaseViewModel {
-    private static final String TAG =MainAtyViewModule.class.getSimpleName() ;
+public class MainAtyViewModuleTest extends BaseViewModel {
+    private static final String TAG = MainAtyViewModuleTest.class.getSimpleName() ;
     public ObservableField<AppCompatActivity> mContext = new ObservableField<>();
     public ObservableInt cycleIntervalNum = new ObservableInt(3);
     public ObservableInt errScanCountNum = new ObservableInt(2);
@@ -29,7 +29,7 @@ public class MainAtyViewModule extends BaseViewModel {
     public ObservableInt errScanCountPosition = new ObservableInt(0);
     public ObservableField<String> openCloseTv = new ObservableField<>("关闭后台服务");
 
-    public MainAtyViewModule(@NonNull Application application) {
+    public MainAtyViewModuleTest(@NonNull Application application) {
         super(application);
     }
 
@@ -49,9 +49,7 @@ public class MainAtyViewModule extends BaseViewModel {
                 }
             }
         });
-        // 根据isOpenService判断是否需要开启Service服务
-        // 首次进来 默认情况下 需要开启
-        // 第二次启动时按照 isOpenService 对应的value值进行判断
+        //是否需要开启Service服务 默认情况下 需要开启
         boolean isOpenService = SPUtils.getInstance().getBoolean("isOpenService", true);
         if(isOpenService){
             //1关闭服务
@@ -60,7 +58,8 @@ public class MainAtyViewModule extends BaseViewModel {
             openService();
         }else{
             //关闭服务
-            closeService();
+            RxBus.getDefault().post(new ServiceAboutEntity());
+            openCloseTv.set("开启后台服务");
         }
     }
 
@@ -83,12 +82,14 @@ public class MainAtyViewModule extends BaseViewModel {
 
     //开启网络检测服务
     //打开完成后 需要标识当前的状态为已打开状态 也就是待关闭后台服务的状态
-    //isOpenService put 为 false的时候 标识界面的btn显示为 开启后台服务 此时Service已关闭
-    //isOpenService put 为 true的时候 标识界面的btn显示为 关闭后台服务  此时Service已打开
+    //openOrclose put 为 close的时候 标识界面的btn显示为 开启后台服务 此时Service已关闭
+    //openOrclose put 为 open的时候 标识界面的btn显示为 关闭后台服务  此时Service已打开
     public void openService() {
         //下次启动时候需要自动重启
         SPUtils.getInstance().put("isOpenService",true);
-        KLog.e(TAG,"开启了服务>当前的状态为：" + SPUtils.getInstance().getBoolean("isOpenService", true));
+        //标识当前的状态 为|关闭后台服务
+        SPUtils.getInstance().put("openOrclose", "close");
+        KLog.e(TAG,"开启了服务>当前的状态为：" + SPUtils.getInstance().getString("openOrclose", ""));
         openCloseTv.set("关闭后台服务");
         //开启服务
         mContext.get().startService(new Intent(mContext.get(), NetWorkService.class));
@@ -96,27 +97,29 @@ public class MainAtyViewModule extends BaseViewModel {
 
     //关闭网络检测服务
     //关闭完成后 需要标识当前的状态为已关闭状态 也就是待开启后台服务的状态
-    //isOpenService put 为 false的时候 标识界面的btn显示为 开启后台服务 此时Service已关闭
-    //isOpenService put 为 true的时候 标识界面的btn显示为 关闭后台服务  此时Service已打开
+    //openOrclose put 为 close的时候 标识界面的btn显示为 开启后台服务 此时Service已关闭
+    //openOrclose put 为 open的时候 标识界面的btn显示为 关闭后台服务  此时Service已打开
     public void closeService() {
         //下次启动时候只能手动启动
         SPUtils.getInstance().put("isOpenService",false);
-        KLog.e(TAG,"关闭了服务>当前的状态为：" + SPUtils.getInstance().getBoolean("isOpenService", true));
+        //标识当前的状态 为|开启后台服务
+        SPUtils.getInstance().put("openOrclose", "open");
+        KLog.e(TAG,"关闭了服务>当前的状态为：" + SPUtils.getInstance().getString("openOrclose", ""));
         openCloseTv.set("开启后台服务");
         //关闭服务
         RxBus.getDefault().post(new ServiceAboutEntity());
     }
 
-    //开启关闭网络检测服务
+    //关闭网络检测服务
     public BindingCommand closeServiceClick = new BindingCommand(new BindingAction() {
         @Override
         public void call() {
             //默认情况下Service需要自动打开
-            boolean isOpenService = SPUtils.getInstance().getBoolean("isOpenService", true);
-            if (isOpenService) {
-                closeService();
-            } else {
+            String openOrHide = SPUtils.getInstance().getString("openOrclose", "open");
+            if (openOrHide.equals("open")) {
                 openService();
+            } else {
+                closeService();
             }
         }
     });

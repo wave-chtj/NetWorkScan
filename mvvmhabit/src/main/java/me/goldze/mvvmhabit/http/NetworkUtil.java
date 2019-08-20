@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.telephony.TelephonyManager;
+import android.widget.Toast;
 
 
 import java.io.IOException;
@@ -14,13 +15,16 @@ import java.net.SocketException;
 import java.net.URL;
 import java.util.Enumeration;
 
+import me.goldze.mvvmhabit.utils.KLog;
+
 public class NetworkUtil {
-    public static String url = "http://www.baidu.com";
+    private static final String TAG =NetworkUtil.class.getSimpleName() ;
+    public static String url = /*"http://www.baidu.com"*/"223.5.5.5";//阿里公共DNS
     public static int NET_CNNT_BAIDU_OK = 1; // NetworkAvailable
     public static int NET_CNNT_BAIDU_TIMEOUT = 2; // no NetworkAvailable
     public static int NET_NOT_PREPARE = 3; // Net no ready
     public static int NET_ERROR = 4; //net error
-    private static int TIMEOUT = 3000; // TIMEOUT
+    private static int TIMEOUT = 4000; // TIMEOUT
 
 
     /**
@@ -75,7 +79,7 @@ public class NetworkUtil {
                 NetworkInfo networkinfo = connectivity.getActiveNetworkInfo();
                 if (networkinfo != null) {
                     if (networkinfo.isAvailable() && networkinfo.isConnected()) {
-                        if (!connectionNetwork())
+                        if (!pingIp(context))
                             return NET_CNNT_BAIDU_TIMEOUT;
                         else
                             return NET_CNNT_BAIDU_OK;
@@ -91,7 +95,7 @@ public class NetworkUtil {
     }
 
     /**
-     *ping "http://www.baidu.com"
+     * ping "http://www.baidu.com"
      * @return
      */
     static private boolean connectionNetwork() {
@@ -111,6 +115,34 @@ public class NetworkUtil {
             httpUrl = null;
         }
         return result;
+    }
+    //Ping
+    public static boolean pingIp(Context context) {
+        boolean isConnect=false;
+        try {
+            if (url != null) {
+                String command="ping -c 2 -w 5 " + url;
+                KLog.e(TAG,"command ping:"+command);
+                //代表ping 3 次 超时时间为10秒
+                Process p = Runtime.getRuntime().exec(command);//ping3次
+                int status = p.waitFor();
+                if (status == 0) {
+                    isConnect=true;
+                    //代表成功
+                } else {
+                    //代表失败
+                    isConnect=false;
+                }
+            } else {
+                //代表失败
+                isConnect=false;
+            }
+        } catch (Exception e) {
+            isConnect=false;
+            KLog.e(TAG, e.getMessage());
+        }
+        KLog.e(TAG,"isConnect:"+isConnect);
+        return isConnect;
     }
 
     /**

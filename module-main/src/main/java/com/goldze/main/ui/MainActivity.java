@@ -20,6 +20,7 @@ import com.tbruyelle.rxpermissions2.RxPermissions;
 import io.reactivex.functions.Consumer;
 import me.goldze.mvvmhabit.base.BaseActivity;
 import me.goldze.mvvmhabit.bus.RxBus;
+import me.goldze.mvvmhabit.http.NetworkUtil;
 import me.goldze.mvvmhabit.netbus.NetUtils;
 import me.goldze.mvvmhabit.utils.KLog;
 import me.goldze.mvvmhabit.utils.SPUtils;
