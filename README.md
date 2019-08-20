@@ -6,11 +6,10 @@
 ```
 ## 2.平台节点不一致 按如下命令来区分4g模块复位
 ### 2.1 adb命令详情
-
-```groovy
-//rk3399  ：echo 1 > /sys/class/spi_sim_ctl/state
-//飞思卡尔：echo 1 > /sys/devices/platform/imx6q_sim/sim_sysfs/state
-```
+ 型号  | 对应命令  | 备注
+ ---- | ----- | ------  
+ rk3399  | echo 1 > /sys/class/spi_sim_ctl/state | commandToReset[0] 
+ 飞思卡尔  | echo 1 > /sys/devices/platform/imx6q_sim/sim_sysfs/state | commandToReset[1]  
 
 ### 2.2 操作步骤
 //找到module-main：com.goldze.main.service.NetWorkService 在reSetAndReboot()方法中选择commandToReset对应的命令
