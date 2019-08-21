@@ -21,8 +21,8 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:text="网络检查间隔时间(分钟)" />
+            android:text="@string/main_net_check_interval"
+            android:textColor="@color/black" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -44,14 +44,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:textColor="@color/black"
-            android:text="网络状态异常扫描次数" />
-         <TextView
+            android:text="@string/main_net_err_count"
+            android:textColor="@color/black" />
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-             android:textSize="12sp"
             android:layout_marginTop="15dp"
-            android:text="例如：连接超时,连接失败,未准备好" />
+            android:text="@string/main_net_abnormal_example"
+            android:textSize="12sp" />
 
 
         <LinearLayout
@@ -70,11 +71,68 @@
 
         </LinearLayout>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:text="@string/main_net_default_address"
+            android:textColor="@color/black" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/btn_radius_bg"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/sp_net_connect"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerInParent="true"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="@string/main_net_delete"
+                    binding:onClickCommand="@{viewModel.delAddrClick}"
+                    android:textColor="@color/blue"
+                    android:textSize="15sp" />
+                <View
+                    android:layout_width="1dp"
+                    android:layout_margin="10dp"
+                    android:background="@color/gray_cc"
+                    android:layout_height="match_parent"/>
+                <TextView
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="@string/main_net_add"
+                    binding:onClickCommand="@{viewModel.addAddrClick}"
+                    android:textColor="@color/blue"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+        </RelativeLayout>
+
         <Button
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:layout_marginTop="25dp"
-            android:text="保存并重新启用"
+            android:text="@string/main_save_re_enable"
             binding:onClickCommand="@{viewModel.setParamClick}" />
 
         <Button

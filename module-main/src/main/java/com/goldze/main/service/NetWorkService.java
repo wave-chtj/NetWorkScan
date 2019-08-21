@@ -160,13 +160,12 @@ public class NetWorkService extends Service {
             }
         };
         int cycleInterval = SPUtils.getInstance().getInt("cycleInterval", 3);
-        KLog.e(TAG, "初始化循环判断网络的间隔时间为：" + cycleInterval);
+        netUserSetErrCount = SPUtils.getInstance().getInt("errScanCount", 2);
+        String defaultAddr = SPUtils.getInstance().getString("addr", "");
+        KLog.e(TAG, "初始化循环判断网络的间隔时间为：" + cycleInterval+"，设置的异常扫描次数为:" + netUserSetErrCount+",设置的默认连接地址为："+defaultAddr);
         isRunningTask1 = true;
         timer1 = new Timer();
         timer1.schedule(timerTask1, 1000, cycleInterval * 60 * 1000);
-
-        netUserSetErrCount = SPUtils.getInstance().getInt("errScanCount", 2);
-        KLog.e(TAG, "2设置的扫描扫描次数为:" + netUserSetErrCount);
         isRunningTask2 = false;
         timer2 = new Timer();
         timer2.schedule(timerTask2, 1000, 2 * 60 * 1000);
@@ -181,7 +180,7 @@ public class NetWorkService extends Service {
             public void accept(String s) throws Exception {
                 if (s.equals("reset")) {
                     KLog.e(TAG, "执行4G模块复位");
-                    ShellUtils.CommandResult resetCommand = ShellUtils.execCommand(commandToReset[1], false);
+                    ShellUtils.CommandResult resetCommand = ShellUtils.execCommand(commandToReset[0], false);
                     KLog.e("resetCommand result:" + resetCommand.result + ",successMeg:" + resetCommand.successMsg + ",errMeg:" + resetCommand.errorMsg);
 
                     String message = "";

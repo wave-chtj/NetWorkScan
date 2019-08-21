@@ -22,13 +22,13 @@ public class MainModuleInit implements IModuleInit {
 
     @Override
     public boolean onInitAhead(Application application) {
-        KLog.e("主业务模块初始化 -- onInitAhead");
+        KLog.d("主业务模块初始化 -- onInitAhead");
         return false;
     }
 
     @Override
     public boolean onInitLow(Application application) {
-        KLog.e("主业务模块初始化 -- onInitLow");
+        KLog.d("主业务模块初始化 -- onInitLow");
         //mainModuleInit = this;
         //instance = application;//1. Application的实例
         //configureJobManager();//2. 配置JobMananger

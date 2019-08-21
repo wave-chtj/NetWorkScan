@@ -6,6 +6,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.SimpleAdapter;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.goldze.base.router.RouterActivityPath;
@@ -30,6 +34,8 @@ import me.goldze.mvvmhabit.utils.SPUtils;
  */
 @Route(path = RouterActivityPath.Main.PAGER_MAIN)
 public class MainActivity extends BaseActivity<ActivityMainBinding, MainAtyViewModule> {
+    public static Spinner sp_net_connect;
+
     @Override
     public int initContentView(Bundle savedInstanceState) {
         return R.layout.activity_main;
@@ -42,11 +48,11 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainAtyViewM
 
     @Override
     public void initData() {
-        RxPermissions rxPermissions=new RxPermissions(this);
-        rxPermissions.request(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION}).subscribe(new Consumer<Boolean>() {
+        RxPermissions rxPermissions = new RxPermissions(this);
+        rxPermissions.request(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}).subscribe(new Consumer<Boolean>() {
             @Override
             public void accept(Boolean aBoolean) throws Exception {
-                KLog.e("aBoolean:"+aBoolean);
+                KLog.e("aBoolean:" + aBoolean);
             }
         });
     }
@@ -60,12 +66,13 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainAtyViewM
     public void initViewObservable() {
         super.initViewObservable();
         viewModel.mContext.set(this);
-        final String [] cycleIntervalInfo=getResources().getStringArray(R.array.main_cycleInterval);
-        final String [] errScanCountInfo=getResources().getStringArray(R.array.main_errScanCount);
 
-        int cycleIntervalPosition= SPUtils.getInstance().getInt("cycleIntervalPosition",0);
-        int netErrCountPosition= SPUtils.getInstance().getInt("errScanCountPosition",0);
-        KLog.e("cycleIntervalPosition:"+cycleIntervalPosition+",netErrCountPosition:"+netErrCountPosition);
+        final String[] cycleIntervalInfo = getResources().getStringArray(R.array.main_cycleInterval);
+        final String[] errScanCountInfo = getResources().getStringArray(R.array.main_errScanCount);
+
+        int cycleIntervalPosition = SPUtils.getInstance().getInt("cycleIntervalPosition", 0);
+        int netErrCountPosition = SPUtils.getInstance().getInt("errScanCountPosition", 0);
+        KLog.e("cycleIntervalPosition:" + cycleIntervalPosition + ",netErrCountPosition:" + netErrCountPosition);
 
         binding.spCycleInterval.setSelection(cycleIntervalPosition);
         binding.spErrScanCount.setSelection(netErrCountPosition);
@@ -74,7 +81,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainAtyViewM
         binding.spCycleInterval.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                ParamEntity paramEntity=new ParamEntity(1,cycleIntervalInfo[position],position);
+                ParamEntity paramEntity = new ParamEntity(1, cycleIntervalInfo[position], position);
                 RxBus.getDefault().post(paramEntity);
             }
 
@@ -87,7 +94,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainAtyViewM
         binding.spErrScanCount.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                ParamEntity paramEntity=new ParamEntity(2,errScanCountInfo[position],position);
+                ParamEntity paramEntity = new ParamEntity(2, errScanCountInfo[position], position);
                 RxBus.getDefault().post(paramEntity);
             }
 

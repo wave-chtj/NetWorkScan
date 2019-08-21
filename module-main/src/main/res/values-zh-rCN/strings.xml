@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="main_net_check_interval">网络检查间隔时间(分钟)</string>
+    <string name="main_net_err_count">网络异常扫描次数</string>
+    <string name="main_net_abnormal_example">例如：连接超时,连接失败,未准备好</string>
+    <string name="main_net_default_address">默认访问地址</string>
+    <string name="main_net_delete">删除</string>
+    <string name="main_net_add">添加</string>
+    <string name="main_save_re_enable">保存并重新启用</string>
+    <string name="main_off_service">关闭后台服务</string>
+    <string name="main_on_service">开启后台服务</string>
+    <string name="main_input_link_addr">请输入链接地址</string>
+    <string name="main_dialog_save">保存</string>
+</resources>

@@ -15,4 +15,20 @@
         <item>20</item>
         <item>25</item>
     </string-array>
+    <string-array name="main_connect">
+        <item>223.5.5.5</item>
+        <item>223.6.6.6</item>
+        <item>www.baidu.com</item>
+    </string-array>
+    <string name="main_net_check_interval">Network check interval (minutes)</string>
+    <string name="main_net_err_count">Network abnormal scan count</string>
+    <string name="main_net_abnormal_example">For example: connection timed out, connection failed, not ready</string>
+    <string name="main_net_default_address">Default access address</string>
+    <string name="main_net_delete">Delete</string>
+    <string name="main_net_add">Add</string>
+    <string name="main_save_re_enable">Save and re-enable</string>
+    <string name="main_off_service">Turn off background services</string>
+    <string name="main_on_service">Turn on background services</string>
+    <string name="main_input_link_addr">Please enter the link address</string>
+    <string name="main_dialog_save">Save</string>
 </resources>

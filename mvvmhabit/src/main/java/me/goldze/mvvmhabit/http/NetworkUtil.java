@@ -16,6 +16,7 @@ import java.net.URL;
 import java.util.Enumeration;
 
 import me.goldze.mvvmhabit.utils.KLog;
+import me.goldze.mvvmhabit.utils.SPUtils;
 
 public class NetworkUtil {
     private static final String TAG =NetworkUtil.class.getSimpleName() ;
@@ -79,7 +80,7 @@ public class NetworkUtil {
                 NetworkInfo networkinfo = connectivity.getActiveNetworkInfo();
                 if (networkinfo != null) {
                     if (networkinfo.isAvailable() && networkinfo.isConnected()) {
-                        if (!pingIp(context))
+                        if (!pingIp())
                             return NET_CNNT_BAIDU_TIMEOUT;
                         else
                             return NET_CNNT_BAIDU_OK;
@@ -117,11 +118,14 @@ public class NetworkUtil {
         return result;
     }
     //Ping
-    public static boolean pingIp(Context context) {
+    public static boolean pingIp() {
         boolean isConnect=false;
+        //如果未选中下拉框中的地址，则默认为url
+        String spAddr= SPUtils.getInstance().getString("addr",url);
+        KLog.e(TAG,"读取设置的连接地址|或者默认地址为："+spAddr);
         try {
-            if (url != null) {
-                String command="ping -c 2 -w 5 " + url;
+            if (spAddr != null) {
+                String command="ping -c 2 -w 5 " + spAddr;
                 KLog.e(TAG,"command ping:"+command);
                 //代表ping 3 次 超时时间为10秒
                 Process p = Runtime.getRuntime().exec(command);//ping3次
