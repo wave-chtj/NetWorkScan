@@ -20,7 +20,7 @@ import me.goldze.mvvmhabit.utils.SPUtils;
 
 public class NetworkUtil {
     private static final String TAG =NetworkUtil.class.getSimpleName() ;
-    public static String url = /*"http://www.baidu.com"*/"223.5.5.5";//阿里公共DNS
+    public static String url = "223.5.5.5";//阿里公共DNS
     public static int NET_CNNT_BAIDU_OK = 1; // NetworkAvailable
     public static int NET_CNNT_BAIDU_TIMEOUT = 2; // no NetworkAvailable
     public static int NET_NOT_PREPARE = 3; // Net no ready
@@ -127,8 +127,8 @@ public class NetworkUtil {
             if (spAddr != null) {
                 String command="ping -c 2 -w 5 " + spAddr;
                 KLog.e(TAG,"command ping:"+command);
-                //代表ping 3 次 超时时间为10秒
-                Process p = Runtime.getRuntime().exec(command);//ping3次
+                //代表ping 2 次 超时时间为5秒
+                Process p = Runtime.getRuntime().exec(command);//ping2次
                 int status = p.waitFor();
                 if (status == 0) {
                     isConnect=true;

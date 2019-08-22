@@ -24,16 +24,16 @@ import me.goldze.mvvmhabit.utils.SPUtils;
 
 /**
  * 网络检测 服务类
+ * 现有机型
+ * "echo 1 > /sys/class/spi_sim_ctl/state",//rk3399
+ * "echo 1 > /sys/devices/platform/imx6q_sim/sim_sysfs/state"//飞思卡尔
  */
 public class NetWorkService extends Service {
     public static final String TAG = NetWorkService.class.getSimpleName();
     private int initialCount = 0;//网络异常时的次数累加
     boolean isRunningTask1 = false, isRunningTask2 = false;
-    int netUserSetErrCount = 5;//用户设置 网络异常是需要扫描的次数
-    private String[] commandToReset = new String[]{
-            "echo 1 > /sys/class/spi_sim_ctl/state",//rk3399
-            "echo 1 > /sys/devices/platform/imx6q_sim/sim_sysfs/state"//飞思卡尔
-    };
+    int netUserSetErrCount = 2;//用户设置 网络异常时需要扫描的次数
+    private String commandToReset = "echo 1 > /sys/devices/platform/imx6q_sim/sim_sysfs/state";
     /**
      * 网络观察者
      */
@@ -48,7 +48,7 @@ public class NetWorkService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        // 网络改变的一个回掉类
+        // 网络改变的一个回调类
         mNetChangeObserver = new NetChangeObserver() {
             @Override
             public void onNetConnected(NetUtils.NetType type) {
@@ -101,27 +101,31 @@ public class NetWorkService extends Service {
                 //一般情况下 两个线程不会并行
                 //判断当前是否是手机网络连接  并且网络为4G
                 boolean isMobileConn = NetUtils.isNet4GConnted(NetWorkService.this);
-                if (isRunningTask1 && isMobileConn) {
-                    //获取当前网络状态
-                    int netStatus = NetworkUtil.getNetState(NetWorkService.this);
-                    if (netStatus == NetworkUtil.NET_CNNT_BAIDU_OK) {//如果网络正常 能够正常访问网络
-                        KLog.e(TAG, "1能够正常访问网络 是否为4G:" + isMobileConn);
-                    } else {
-                        String message = "";
-                        if (netStatus == NetworkUtil.NET_CNNT_BAIDU_TIMEOUT) {
-                            message = "1网络连接超时";
-                        } else if (netStatus == NetworkUtil.NET_NOT_PREPARE) {
-                            message = "1网络未准备好";
+                if (isRunningTask1) {
+                    if(isMobileConn){//如果当前网络为4G
+                        //获取当前网络状态
+                        int netStatus = NetworkUtil.getNetState(NetWorkService.this);
+                        if (netStatus == NetworkUtil.NET_CNNT_BAIDU_OK) {//如果网络正常 能够正常访问网络
+                            KLog.e(TAG, "1能够正常访问网络 是否为4G:" + isMobileConn);
                         } else {
-                            message = "1网络异常";
+                            String message = "";
+                            if (netStatus == NetworkUtil.NET_CNNT_BAIDU_TIMEOUT) {
+                                message = "网络连接超时";
+                            } else if (netStatus == NetworkUtil.NET_NOT_PREPARE) {
+                                message = "网络未准备好";
+                            } else {
+                                message = "网络异常";
+                            }
+                            KLog.e(TAG, "1当前网络状态：" + message);
+                            isRunningTask1 = false;//关闭第一个线程
+                            isRunningTask2 = true;//开启第二个线程
+                            KLog.e(TAG, "1当前网络异常 执行下一步");
                         }
-                        KLog.e(TAG, message);
-                        isRunningTask1 = false;//关闭第一个线程
-                        isRunningTask2 = true;//开启第二个线程
-                        KLog.e(TAG, "1当前网络异常 执行下一步");
+                    }else{
+                        KLog.e(TAG,"1当前网络非4G网络 请检查");
                     }
-                }
 
+                }
             }
         };
         timerTask2 = new TimerTask() {
@@ -131,11 +135,11 @@ public class NetWorkService extends Service {
                     int netStatus = NetworkUtil.getNetState(NetWorkService.this);
                     String message = "";
                     if (netStatus == NetworkUtil.NET_CNNT_BAIDU_TIMEOUT) {
-                        message = "1网络连接超时";
+                        message = "网络连接超时";
                     } else if (netStatus == NetworkUtil.NET_NOT_PREPARE) {
-                        message = "1网络未准备好";
+                        message = "网络未准备好";
                     } else {
-                        message = "1网络异常";
+                        message = "网络异常";
                     }
                     KLog.e(TAG, "2当前网络状态：" + message);
                     if (netStatus == NetworkUtil.NET_CNNT_BAIDU_OK) {
@@ -152,6 +156,7 @@ public class NetWorkService extends Service {
                         //如果遇到恢复不了的情况，要重复扫描5次。也就是10分钟。
                         //netErrCount次是不能连上网络的话，就要给4G模块复位。重新断电上电。
                         if (initialCount == netUserSetErrCount) {
+                            KLog.e(TAG, "网络无法恢复,即将执行4G复位操作！");
                             //4G模块复位
                             RxBus.getDefault().post("reset");
                         }
@@ -162,7 +167,7 @@ public class NetWorkService extends Service {
         int cycleInterval = SPUtils.getInstance().getInt("cycleInterval", 3);
         netUserSetErrCount = SPUtils.getInstance().getInt("errScanCount", 2);
         String defaultAddr = SPUtils.getInstance().getString("addr", "");
-        KLog.e(TAG, "初始化循环判断网络的间隔时间为：" + cycleInterval+"，设置的异常扫描次数为:" + netUserSetErrCount+",设置的默认连接地址为："+defaultAddr);
+        KLog.e(TAG, "初始化循环判断网络的间隔时间为：" + cycleInterval + "，设置的异常扫描次数为:" + netUserSetErrCount + ",设置的默认连接地址为：" + defaultAddr);
         isRunningTask1 = true;
         timer1 = new Timer();
         timer1.schedule(timerTask1, 1000, cycleInterval * 60 * 1000);
@@ -180,7 +185,8 @@ public class NetWorkService extends Service {
             public void accept(String s) throws Exception {
                 if (s.equals("reset")) {
                     KLog.e(TAG, "执行4G模块复位");
-                    ShellUtils.CommandResult resetCommand = ShellUtils.execCommand(commandToReset[0], false);
+                    String command = SPUtils.getInstance().getString("typeCommand", commandToReset);
+                    ShellUtils.CommandResult resetCommand = ShellUtils.execCommand(command, false);
                     KLog.e("resetCommand result:" + resetCommand.result + ",successMeg:" + resetCommand.successMsg + ",errMeg:" + resetCommand.errorMsg);
 
                     String message = "";

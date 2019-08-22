@@ -2,7 +2,6 @@ package me.goldze.mvvmhabit.netbus;
 
 /**
  * 网络改变观察者，观察网络改变后回调的方法
- * Created by 邓鉴恒 on 16/9/13.
  */
 public interface NetChangeObserver {
 

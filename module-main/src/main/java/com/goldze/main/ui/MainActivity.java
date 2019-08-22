@@ -1,40 +1,32 @@
 package com.goldze.main.ui;
 
 import android.Manifest;
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.SimpleAdapter;
-import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
-
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.goldze.base.router.RouterActivityPath;
 import com.goldze.main.R;
 import com.goldze.main.BR;
 import com.goldze.main.databinding.ActivityMainBinding;
-import com.goldze.main.entity.ParamEntity;
-import com.goldze.main.entity.PositionEntity;
-import com.goldze.main.service.NetWorkService;
+import com.goldze.main.entity.ChangeDataEntity;
 import com.tbruyelle.rxpermissions2.RxPermissions;
-
 import io.reactivex.functions.Consumer;
 import me.goldze.mvvmhabit.base.BaseActivity;
 import me.goldze.mvvmhabit.bus.RxBus;
-import me.goldze.mvvmhabit.http.NetworkUtil;
-import me.goldze.mvvmhabit.netbus.NetUtils;
 import me.goldze.mvvmhabit.utils.KLog;
 import me.goldze.mvvmhabit.utils.SPUtils;
+import me.goldze.mvvmhabit.utils.Utils;
 
 /**
  * Created by goldze on 2018/6/21
  */
 @Route(path = RouterActivityPath.Main.PAGER_MAIN)
 public class MainActivity extends BaseActivity<ActivityMainBinding, MainAtyViewModule> {
-    public static Spinner sp_net_connect;
+    public static final String TAG = MainActivity.class.getSimpleName();
+    String[] cycleIntervalInfo = Utils.getContext().getResources().getStringArray(R.array.main_cycleInterval);//网络检测间隔时间
+    String[] errScanCountInfo =  Utils.getContext().getResources().getStringArray(R.array.main_errScanCount);//异常扫描的次数
 
     @Override
     public int initContentView(Bundle savedInstanceState) {
@@ -52,7 +44,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainAtyViewM
         rxPermissions.request(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}).subscribe(new Consumer<Boolean>() {
             @Override
             public void accept(Boolean aBoolean) throws Exception {
-                KLog.e("aBoolean:" + aBoolean);
+                KLog.e("网络权限是否申请成功:" + aBoolean);
             }
         });
     }
@@ -66,10 +58,6 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainAtyViewM
     public void initViewObservable() {
         super.initViewObservable();
         viewModel.mContext.set(this);
-
-        final String[] cycleIntervalInfo = getResources().getStringArray(R.array.main_cycleInterval);
-        final String[] errScanCountInfo = getResources().getStringArray(R.array.main_errScanCount);
-
         int cycleIntervalPosition = SPUtils.getInstance().getInt("cycleIntervalPosition", 0);
         int netErrCountPosition = SPUtils.getInstance().getInt("errScanCountPosition", 0);
         KLog.e("cycleIntervalPosition:" + cycleIntervalPosition + ",netErrCountPosition:" + netErrCountPosition);
@@ -81,8 +69,8 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainAtyViewM
         binding.spCycleInterval.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                ParamEntity paramEntity = new ParamEntity(1, cycleIntervalInfo[position], position);
-                RxBus.getDefault().post(paramEntity);
+                viewModel.cycleIntervalNum.set(Integer.parseInt(cycleIntervalInfo[position]));
+                viewModel.cycleIntervalPosition.set(position);
             }
 
             @Override
@@ -94,13 +82,58 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainAtyViewM
         binding.spErrScanCount.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                ParamEntity paramEntity = new ParamEntity(2, errScanCountInfo[position], position);
-                RxBus.getDefault().post(paramEntity);
+                viewModel.errScanCountNum.set(Integer.parseInt(errScanCountInfo[position]));
+                viewModel.errScanCountPosition.set(position);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
+            }
+        });
+        //链接地址
+        binding.spNetConnect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                viewModel.nowSelectAddrTv.set(viewModel.connadrList.get(position));
+                KLog.e(TAG, "选中了:" + viewModel.nowSelectAddrTv.get());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        //机型
+        binding.spModel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                viewModel.typeNameTv.set(viewModel.modelTypeList.get(position).getTypeName());
+                viewModel.typeCommandTv.set(viewModel.modelTypeList.get(position).getTypeCommand());
+                KLog.e(TAG, "选中了typeNameTv:" + viewModel.typeCommandTv.get()+",typeCommandTv:"+viewModel.typeCommandTv.get());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        changeDataListener();
+    }
+
+    //数据改变时刷新Spinner
+    public void changeDataListener(){
+        RxBus.getDefault().toObservable(ChangeDataEntity.class).subscribe(new Consumer<ChangeDataEntity>() {
+            @Override
+            public void accept(ChangeDataEntity changeDataEntity) throws Exception {
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_dropdown_item_1line, android.R.id.text1, changeDataEntity.getData());
+                if(changeDataEntity.getData_type()== ChangeDataEntity.DATA_TYPE.TYPE_CONN_ADDR){
+                    binding.spNetConnect.setAdapter(adapter);
+                    binding.spNetConnect.setSelection(changeDataEntity.getDefaultPositon());
+                }else if(changeDataEntity.getData_type()== ChangeDataEntity.DATA_TYPE.TYPE_MODEL_TYPE){
+                    binding.spModel.setAdapter(adapter);
+                    binding.spModel.setSelection(changeDataEntity.getDefaultPositon());
+                }
             }
         });
     }

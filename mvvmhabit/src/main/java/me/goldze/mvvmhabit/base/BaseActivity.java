@@ -257,6 +257,7 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends BaseVie
 
     }
 
+
     /**
      * 创建ViewModel
      *

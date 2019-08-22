@@ -7,12 +7,18 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DbHelper extends SQLiteOpenHelper {
     private SQLiteDatabase db = null;
     private Cursor cursor = null;
-    private String TAG = "DBTest";
+    private String TAG = DbHelper.class.getSimpleName();
     private boolean isInit;
-    private String createString;
+    public static final String DB_NAME_CONN_READER_TYPE="connDB";//数据库名称
+    public static final String TABLE_READER_TYPE="connadr";//链接表
+    public static final String TABLE_CONN_ADDR="readerType";//机型表
+    private List<String> createString;//多张表
 
     public DbHelper(Context context, String dbName, SQLiteDatabase.CursorFactory factory,
                     int version) {
@@ -23,32 +29,41 @@ public class DbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         this.db = db;
-        db.execSQL(createString);
+        for (int i = 0; i < createString.size(); i++) {
+            db.execSQL(createString.get(i));
+        }
     }
 
-    public void inItDb(String createString) {
+    public void inItDb() {
         if (isInit)
             return;
-        this.createString = createString;
+        initTable();
         this.isInit = true;
     }
 
     // 增
-    public void insert(ContentValues values, String tableName) {
+    public void insertConn(ContentValues values, String tableName) {
         SQLiteDatabase db = getWritableDatabase();
-        System.out.println("values" + values.get("id") + values.get("addr")
-                + values.get("age"));
         db.insert(tableName, null, values);
         Log.i(TAG, "增加一行");
         db.close();
     }
 
-    // 删除某一行
-    public void delete(String addr, String tableName) {
+    // 删除链接地址
+    public void deleteConn(String addr, String tableName) {
         // if (db == null) {
         SQLiteDatabase db = getWritableDatabase();
         // }
         db.delete(tableName, "addr=?", new String[]{String.valueOf(addr)});
+        Log.i(TAG, "删除一行");
+    }
+
+    // 删除机型
+    public void deleteModelType(String typeName, String tableName) {
+        // if (db == null) {
+        SQLiteDatabase db = getWritableDatabase();
+        // }
+        db.delete(tableName, "typeName=?", new String[]{String.valueOf(typeName)});
         Log.i(TAG, "删除一行");
     }
 
@@ -60,16 +75,27 @@ public class DbHelper extends SQLiteOpenHelper {
         Log.i(TAG, "更新一行");
     }
 
-    // 按id查询
-    public Cursor queryByAddr(String addr, String tableName) {
+    // 按addr查询
+    public Cursor queryByAddr(String addr) {
         SQLiteDatabase db = getWritableDatabase();
         System.out.println("addr---->" + addr);
-        cursor = db.query(tableName, null, "addr=?", new String[]{addr},
+        cursor = db.query(TABLE_CONN_ADDR, null, "addr=?", new String[]{addr},
                 null, null, null);
         Log.i(TAG, "按addr查询一行");
         return cursor;
     }
 
+    // 按typeName查询
+    public Cursor queryByModelType(String typeName) {
+        SQLiteDatabase db = getWritableDatabase();
+        System.out.println("typeName---->" + typeName);
+        cursor = db.query(TABLE_READER_TYPE, null, "typeName=?", new String[]{typeName},
+                null, null, null);
+        Log.i(TAG, "按typeName查询一行");
+        return cursor;
+    }
+
+    //按表名查询全部数据
     public Cursor query(String tableName) {
         SQLiteDatabase db = getWritableDatabase();
         cursor = db.query(tableName, null, null, null, "id", null, "id");
@@ -78,8 +104,8 @@ public class DbHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public boolean deleteDatabase(Context context, String DBName) {
-        return context.deleteDatabase(DBName);
+    public boolean deleteDatabase(Context context) {
+        return context.deleteDatabase(DB_NAME_CONN_READER_TYPE);
     }
 
     // 按sql语句操作数据库
@@ -151,7 +177,9 @@ public class DbHelper extends SQLiteOpenHelper {
      *
      * @return
      */
-    public static String getOther(String tablename) {
-        return "Create Table " + tablename + "( id INTEGER PRIMARY KEY AUTOINCREMENT, addr text )";
+    public  void initTable() {
+        createString=new ArrayList<>();
+        createString.add("Create Table "+TABLE_CONN_ADDR+"( id INTEGER PRIMARY KEY AUTOINCREMENT, addr text )") ;
+        createString.add("Create Table "+TABLE_READER_TYPE+"( id INTEGER PRIMARY KEY AUTOINCREMENT, typeName text,typeCommand text )") ;
     }
 }

@@ -20,6 +20,7 @@
         <item>223.6.6.6</item>
         <item>www.baidu.com</item>
     </string-array>
+    <string name="main_select_model">Please select the current model</string>
     <string name="main_net_check_interval">Network check interval (minutes)</string>
     <string name="main_net_err_count">Network abnormal scan count</string>
     <string name="main_net_abnormal_example">For example: connection timed out, connection failed, not ready</string>
@@ -31,4 +32,13 @@
     <string name="main_on_service">Turn on background services</string>
     <string name="main_input_link_addr">Please enter the link address</string>
     <string name="main_dialog_save">Save</string>
+    <string name="main_input_ok_addr">Please enter the correct address!</string>
+    <string name="main_input_ok_model">Please enter the correct model!</string>
+    <string name="main_input_model_name">Please enter the  model name</string>
+    <string name="main_input_model_command">Please enter the  model command</string>
+    <string name="main_first_start_set_model">When starting up for the first time, add a model for selection</string>
+    <string name="main_system_model_type">Built-in models, please do not delete!</string>
+    <string name="main_system_link">The system has a built-in link address, please do not delete it!</string>
+    <string name="main_exist_model_type_rename">The database has the same model, please change the name!</string>
+    <string name="main_exist_link_rename">The database has the same link address, please change the name!</string>
 </resources>

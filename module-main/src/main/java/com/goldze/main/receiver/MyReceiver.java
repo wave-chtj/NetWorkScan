@@ -20,9 +20,7 @@ public class MyReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
-            Intent i = new Intent(context, /*MainActivity.class*/NetWorkService.class);
-            //i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            //context.startActivity(i);
+            Intent i = new Intent(context, NetWorkService.class);
             KLog.e(TAG,"进来了 myreceiver");
             context.startService(i);
         }
