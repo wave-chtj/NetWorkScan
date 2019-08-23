@@ -33,16 +33,15 @@ public class NetStateReceiver extends BroadcastReceiver {
         }
         return mBroadcastReceiver;
     }
-
     @Override
     public void onReceive(Context context, Intent intent) {
         mBroadcastReceiver = NetStateReceiver.this;
         if (intent.getAction().equalsIgnoreCase(ANDROID_NET_CHANGE_ACTION) || intent.getAction().equalsIgnoreCase(CUSTOM_ANDROID_NET_CHANGE_ACTION)) {
             if (!NetUtils.isNetworkAvailable(context)) {
-                Log.e(this.getClass().getName(), "<--- network disconnected --->");
+                Log.d(this.getClass().getName(), "<--- network disconnected --->");
                 isNetAvailable = false;
             } else {
-                Log.e(this.getClass().getName(), "<--- network connected --->");
+                Log.d(this.getClass().getName(), "<--- network connected --->");
                 isNetAvailable = true;
                 mNetType = NetUtils.getAPNType(context);
             }

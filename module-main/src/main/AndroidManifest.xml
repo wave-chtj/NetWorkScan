@@ -5,7 +5,8 @@
         >
         <!--在自己组件中注册Activity-->
         <activity android:name="com.goldze.main.ui.MainActivity"></activity>
-        <service android:name=".service.NetWorkService"/>
+       <!-- <service android:name=".service.NetWorkService"/>-->
+        <service android:name=".service.NetWorkServiceTest"></service>
         <receiver
             android:name=".receiver.MyReceiver"
             android:enabled="true"

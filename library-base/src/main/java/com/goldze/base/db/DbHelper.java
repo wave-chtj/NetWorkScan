@@ -16,7 +16,7 @@ public class DbHelper extends SQLiteOpenHelper {
     private String TAG = DbHelper.class.getSimpleName();
     private boolean isInit;
     public static final String DB_NAME_CONN_READER_TYPE="connDB";//数据库名称
-    public static final String TABLE_READER_TYPE="connadr";//链接表
+    public static final String TABLE_READER_TYPE="connadr";//访问表
     public static final String TABLE_CONN_ADDR="readerType";//机型表
     private List<String> createString;//多张表
 
@@ -49,7 +49,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    // 删除链接地址
+    // 删除访问地址
     public void deleteConn(String addr, String tableName) {
         // if (db == null) {
         SQLiteDatabase db = getWritableDatabase();

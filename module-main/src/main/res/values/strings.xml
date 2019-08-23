@@ -41,4 +41,6 @@
     <string name="main_system_link">The system has a built-in link address, please do not delete it!</string>
     <string name="main_exist_model_type_rename">The database has the same model, please change the name!</string>
     <string name="main_exist_link_rename">The database has the same link address, please change the name!</string>
+    <string name="main_model_type_err_prompt">*If it is wrong, please choose below</string>
+    <string name="main_now_model_type">Your current model is：</string>
 </resources>

@@ -19,9 +19,6 @@ import java.util.Map;
 
 import me.goldze.mvvmhabit.base.BaseViewModel.ParameterField;
 import me.goldze.mvvmhabit.bus.Messenger;
-import me.goldze.mvvmhabit.netbus.NetChangeObserver;
-import me.goldze.mvvmhabit.netbus.NetStateReceiver;
-import me.goldze.mvvmhabit.netbus.NetUtils;
 import me.goldze.mvvmhabit.utils.MaterialDialogUtils;
 
 

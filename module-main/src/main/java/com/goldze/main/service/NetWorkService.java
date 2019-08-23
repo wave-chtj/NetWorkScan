@@ -11,8 +11,11 @@ import com.goldze.main.entity.ServiceAboutEntity;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
+import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import me.goldze.mvvmhabit.bus.RxBus;
 import me.goldze.mvvmhabit.http.NetworkUtil;
@@ -32,8 +35,9 @@ public class NetWorkService extends Service {
     public static final String TAG = NetWorkService.class.getSimpleName();
     private int initialCount = 0;//网络异常时的次数累加
     boolean isRunningTask1 = false, isRunningTask2 = false;
-    int netUserSetErrCount = 2;//用户设置 网络异常时需要扫描的次数
+    int netUserSetErrCount = 5;//用户设置 网络异常时需要扫描的次数
     private String commandToReset = "echo 1 > /sys/devices/platform/imx6q_sim/sim_sysfs/state";
+    String urlAddr="";
     /**
      * 网络观察者
      */
@@ -52,7 +56,7 @@ public class NetWorkService extends Service {
         mNetChangeObserver = new NetChangeObserver() {
             @Override
             public void onNetConnected(NetUtils.NetType type) {
-                int netStatus = NetworkUtil.getNetState(NetWorkService.this);
+                int netStatus = NetworkUtil.getNetState(NetWorkService.this,urlAddr);
                 if (netStatus == NetworkUtil.NET_CNNT_BAIDU_OK) {
                     //如果网络已连接 并且能够正常访问
                     KLog.e(TAG, "网络已连接 恢复正常 正在刷新线程状态 " + type.name());
@@ -104,7 +108,7 @@ public class NetWorkService extends Service {
                 if (isRunningTask1) {
                     if(isMobileConn){//如果当前网络为4G
                         //获取当前网络状态
-                        int netStatus = NetworkUtil.getNetState(NetWorkService.this);
+                        int netStatus = NetworkUtil.getNetState(NetWorkService.this,urlAddr);
                         if (netStatus == NetworkUtil.NET_CNNT_BAIDU_OK) {//如果网络正常 能够正常访问网络
                             KLog.e(TAG, "1能够正常访问网络 是否为4G:" + isMobileConn);
                         } else {
@@ -132,7 +136,7 @@ public class NetWorkService extends Service {
             @Override
             public void run() {
                 if (isRunningTask2) {
-                    int netStatus = NetworkUtil.getNetState(NetWorkService.this);
+                    int netStatus = NetworkUtil.getNetState(NetWorkService.this,urlAddr);
                     String message = "";
                     if (netStatus == NetworkUtil.NET_CNNT_BAIDU_TIMEOUT) {
                         message = "网络连接超时";
@@ -151,7 +155,7 @@ public class NetWorkService extends Service {
                         KLog.e(TAG, "2任务需要终止>isRunningTask2:" + isRunningTask2 + ",isRunningTask1:" + isRunningTask1);
                     } else {
                         initialCount++;
-                        KLog.e(TAG, "2网络异常，继续检测 当前检测的次数为：" + initialCount);
+                        KLog.e(TAG, "2网络异常，继续检测 总次数为："+netUserSetErrCount+", 当前检测的次数为：" + initialCount);
                         //例如：
                         //如果遇到恢复不了的情况，要重复扫描5次。也就是10分钟。
                         //netErrCount次是不能连上网络的话，就要给4G模块复位。重新断电上电。
@@ -165,9 +169,9 @@ public class NetWorkService extends Service {
             }
         };
         int cycleInterval = SPUtils.getInstance().getInt("cycleInterval", 3);
-        netUserSetErrCount = SPUtils.getInstance().getInt("errScanCount", 2);
-        String defaultAddr = SPUtils.getInstance().getString("addr", "");
-        KLog.e(TAG, "初始化循环判断网络的间隔时间为：" + cycleInterval + "，设置的异常扫描次数为:" + netUserSetErrCount + ",设置的默认连接地址为：" + defaultAddr);
+        netUserSetErrCount = SPUtils.getInstance().getInt("errScanCount", 5);
+        urlAddr= SPUtils.getInstance().getString("addr", NetworkUtil.url);
+        KLog.e(TAG, "初始化循环判断网络的间隔时间为：" + cycleInterval + "，设置的异常扫描次数为:" + netUserSetErrCount + ",设置的默认连接地址为：" + urlAddr);
         isRunningTask1 = true;
         timer1 = new Timer();
         timer1.schedule(timerTask1, 1000, cycleInterval * 60 * 1000);

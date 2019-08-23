@@ -19,6 +19,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+
 import com.goldze.base.db.DbHelper;
 import com.goldze.main.R;
 import com.goldze.main.entity.ChangeDataEntity;
@@ -26,9 +27,14 @@ import com.goldze.main.entity.ModelTypeEntity;
 import com.goldze.main.entity.NetTimerParamEntity;
 import com.goldze.main.entity.ServiceAboutEntity;
 import com.goldze.main.service.NetWorkService;
+import com.goldze.main.service.NetWorkServiceTest;
+import com.goldze.main.utils.ModelType;
+import com.goldze.main.utils.SystemInfoUtil;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import me.goldze.mvvmhabit.base.BaseViewModel;
 import me.goldze.mvvmhabit.binding.command.BindingAction;
 import me.goldze.mvvmhabit.binding.command.BindingCommand;
@@ -44,16 +50,17 @@ public class MainAtyViewModule extends BaseViewModel {
     public ObservableInt errScanCountNum = new ObservableInt(2);//异常状态扫描的次数
     public ObservableInt cycleIntervalPosition = new ObservableInt(0);//网络检查间隔时间 对应的下标
     public ObservableInt errScanCountPosition = new ObservableInt(0);//网络异常判断次数   对应的下标
-    public ObservableField<String> addrConnTv = new ObservableField<>("");//待添加的链接地址 用于新增的是否重复|新增
+    public ObservableField<String> addrConnTv = new ObservableField<>("");//待添加的访问地址 用于新增的是否重复|新增
     public ObservableField<String> addrModelTypeTv = new ObservableField<>("");//待添加的机型 用于新增的是否重复|新增
     public ObservableField<String> openCloseTv = new ObservableField<>();//当前btn状态为开启后台服务|关闭后台服务
-    public ObservableField<String> nowSelectAddrTv = new ObservableField<>();//当前选择的链接地址
-    public List<String> connadrList = new ArrayList<>();//数据库查询到的全部链接地址
+    public ObservableField<String> nowSelectAddrTv = new ObservableField<>();//当前选择的访问地址
+    public List<String> connadrList = new ArrayList<>();//数据库查询到的全部访问地址
     public List<ModelTypeEntity> modelTypeList = new ArrayList<>();//机型
     public ObservableField<String> typeNameTv = new ObservableField<>();//当前选中的机型名称
     public ObservableField<String> typeCommandTv = new ObservableField<>();//当前机型对应的shell命令
+    public ObservableField<String> modelTypeNameByFirst = new ObservableField<>("机型不详");//当前查询出来的机型
     DbHelper dbHelper = null;//数据库服务类
-    PopupWindow popupWindow;//弹窗  用于新增机型|链接地址
+    PopupWindow popupWindow;//弹窗  用于新增机型|访问地址
 
     public MainAtyViewModule(@NonNull Application application) {
         super(application);
@@ -64,7 +71,7 @@ public class MainAtyViewModule extends BaseViewModel {
         super.onCreate();
         openCloseTv.set(mContext.get().getResources().getString(R.string.main_off_service));
         initDaBase();
-        initAddModelType();
+        initModelType();
         queryAllConn();
         queryAllModelType();
         // 根据isOpenService判断是否需要开启Service服务
@@ -93,34 +100,63 @@ public class MainAtyViewModule extends BaseViewModel {
     /**
      * 默认添加一些机型
      */
-    public void initAddModelType(){
+    public void initModelType() {
+        //获取机型
+        String getModelTypeName = SystemInfoUtil.getModelType();
+        KLog.e(TAG, "您当前获取到的机型为：" + getModelTypeName);
+        if (getModelTypeName != null) {
+            if (getModelTypeName.equals(ModelType.FEI_SI_KA_ER)) {
+                modelTypeNameByFirst.set("飞思卡尔");
+            } else if (getModelTypeName.equals(ModelType.RK_3399)) {
+                modelTypeNameByFirst.set("rk3399");
+            }
+        }
         //是否为首次启动
-        boolean isFristStart=SPUtils.getInstance().getBoolean("isFirst",true);
-        if(isFristStart){
-            KLog.e(TAG,"添加一些默认机型:rk3399;飞思卡尔");
+        boolean isFristStart = SPUtils.getInstance().getBoolean("isFirst", true);
+        if (isFristStart) {
+            KLog.e(TAG, "添加一些默认机型:rk3399;飞思卡尔");
             ContentValues values = new ContentValues();
             values.put("typeName", "rk3399");
             values.put("typeCommand", "echo 1 > /sys/class/spi_sim_ctl/state");
             dbHelper.insertConn(values, DbHelper.TABLE_READER_TYPE);
-            values= new ContentValues();
+            values = new ContentValues();
             values.put("typeName", "飞思卡尔");
             values.put("typeCommand", "echo 1 > /sys/devices/platform/imx6q_sim/sim_sysfs/state");
             dbHelper.insertConn(values, DbHelper.TABLE_READER_TYPE);
 
-            KLog.e(TAG,"添加一些默认链接地址:");
-            values= new ContentValues();
-            values.put("addr","223.5.5.5");//阿里公共DNS
+            KLog.e(TAG, "添加一些默认访问地址:");
+            values = new ContentValues();
+            values.put("addr", "www.google.cn");
             dbHelper.insertConn(values, DbHelper.TABLE_CONN_ADDR);
-            values= new ContentValues();
-            values.put("addr","www.google.cn");
+            values = new ContentValues();
+            values.put("addr", "223.5.5.5");//阿里公共DNS
             dbHelper.insertConn(values, DbHelper.TABLE_CONN_ADDR);
 
-            SPUtils.getInstance().put("isFirst",false);
-        }else{
-            KLog.e(TAG,"不是首次启动,不执行机型添加操作");
+            //如果首次进入 并且初始化机型后
+            //需要去加载符合设备对应机型的选项 设置为默认
+            if (modelTypeNameByFirst.get() != null && !modelTypeNameByFirst.get().equals("机型不详") && !modelTypeNameByFirst.get().equals("")) {
+                SPUtils.getInstance().put("typeName", modelTypeNameByFirst.get());
+                String getCommand=queryByTypeCommand();//根据机型获取命令
+                if(getCommand!=null&&!getCommand.equals("")){
+                    //根据机型获取到对应的adb命令后，去保存typeCommand
+                    SPUtils.getInstance().put("typeCommand", getCommand);
+                    KLog.e(TAG,"首次加载，根据机型获取到adb命令成功-->机型："+modelTypeNameByFirst.get()+",命令："+getCommand+",手动选择机型后将不在生效！");
+                }else{
+                    //如果根据机型获取不到命令 则重置typeName机型
+                    SPUtils.getInstance().put("typeName","");
+                    KLog.e(TAG,"根据机型获取adb命令失败，重置机型和命令为空！");
+                }
+            }
+            //首次加载 设置默认的访问访问地址
+            SPUtils.getInstance().put("addr","223.5.5.5");
+            KLog.e(TAG,"首次加载，默认设置一个访问地址：223.5.5.5");
+            SPUtils.getInstance().put("isFirst", false);
+        } else {
+            KLog.e(TAG, "不是首次启动,不执行机型添加操作");
         }
 
     }
+
     /**
      * 查询数据库
      *
@@ -144,7 +180,7 @@ public class MainAtyViewModule extends BaseViewModel {
                     }
                 }
                 connadrList.add(addrContent);
-                KLog.e(TAG, "list value:" + addrContent);
+                KLog.e(TAG, "获取一些内置存储访问地址-->list value:" + addrContent);
                 cursor.moveToNext();
                 i++;
             }
@@ -181,14 +217,14 @@ public class MainAtyViewModule extends BaseViewModel {
                 }
                 //找到addr默认设置的下标
                 modelTypeList.add(new ModelTypeEntity(id, typeName, command));
-                KLog.e(TAG, "list value:" + typeName);
+                KLog.e(TAG, "获取一些内置存储机型-->list value:" + typeName);
                 cursor.moveToNext();
                 i++;
             }
         }
         List<String> modelTypeNameList = new ArrayList<>();
         for (int j = 0; j < modelTypeList.size(); j++) {
-            modelTypeNameList.add(modelTypeList.get(j).getTypeName()+"   |    "+modelTypeList.get(j).getTypeCommand());
+            modelTypeNameList.add(modelTypeList.get(j).getTypeName() + "   |    " + modelTypeList.get(j).getTypeCommand());
         }
         if (modelTypeList == null || modelTypeList.size() <= 0) {
             KLog.e(TAG, "modelTypeList size:0");
@@ -199,7 +235,7 @@ public class MainAtyViewModule extends BaseViewModel {
     }
 
     /**
-     * 查询数据库是否存在相同的链接
+     * 查询数据库是否存在相同的访问地址
      *
      * @return
      */
@@ -223,8 +259,7 @@ public class MainAtyViewModule extends BaseViewModel {
     }
 
 
-
-       /**
+    /**
      * 查询数据库是否存在相同的机型
      *
      * @return
@@ -248,9 +283,22 @@ public class MainAtyViewModule extends BaseViewModel {
         return isExist;
     }
 
+    //根据typeName获取typeCommand
+    public String queryByTypeCommand() {
+        List<String> byAddrList = new ArrayList<>();
+        // 解析游标
+        Cursor cursor = dbHelper.queryByModelType(modelTypeNameByFirst.get());
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                byAddrList.add(cursor.getString(cursor.getColumnIndex("typeCommand")));
+                cursor.moveToNext();
+            }
+        }
+        return byAddrList.get(0);
+    }
 
 
-    //添加链接地址
+    //添加访问地址
     public BindingCommand addAddrClick = new BindingCommand(new BindingAction() {
         @Override
         public void call() {
@@ -281,7 +329,7 @@ public class MainAtyViewModule extends BaseViewModel {
                             popupWindow.dismiss();
                         } else {
                             ToastUtils.showLong(mContext.get().getResources().getString(R.string.main_exist_link_rename));
-                            KLog.e(TAG, "数据库存在相同的链接地址,请更换！");
+                            KLog.e(TAG, "数据库存在相同的访问地址,请更换！");
                         }
                     }
                 }
@@ -314,27 +362,27 @@ public class MainAtyViewModule extends BaseViewModel {
             popupWindow = new PopupWindow(contentView,
                     ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.WRAP_CONTENT, true);
             popupWindow.setContentView(contentView);
-            final EditText ettypeName=contentView.findViewById(R.id.et_typename);
-            final EditText etcommand=contentView.findViewById(R.id.et_command);
+            final EditText ettypeName = contentView.findViewById(R.id.et_typename);
+            final EditText etcommand = contentView.findViewById(R.id.et_command);
             TextView tv_save = contentView.findViewById(R.id.tv_save);
             tv_save.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     String typeName = ettypeName.getText().toString();
                     String command = etcommand.getText().toString();
-                    if (typeName == null || typeName.equals("")||command==null||command.equals("")) {
+                    if (typeName == null || typeName.equals("") || command == null || command.equals("")) {
                         ToastUtils.showLong(mContext.get().getResources().getString(R.string.main_input_ok_model));
                         popupWindow.dismiss();
                     } else {
                         addrModelTypeTv.set(typeName);
-                        if(!queryByModelType()){
+                        if (!queryByModelType()) {
                             ContentValues values = new ContentValues();
                             values.put("typeName", typeName);
                             values.put("typeCommand", command);
                             dbHelper.insertConn(values, DbHelper.TABLE_READER_TYPE);
                             queryAllModelType();
                             popupWindow.dismiss();
-                        }else{
+                        } else {
                             ToastUtils.showLong(mContext.get().getResources().getString(R.string.main_exist_model_type_rename));
                             KLog.e(TAG, "数据库存在相同的机型,请更换名称！");
                         }
@@ -365,7 +413,7 @@ public class MainAtyViewModule extends BaseViewModel {
     public BindingCommand delAddrClick = new BindingCommand(new BindingAction() {
         @Override
         public void call() {
-            if(nowSelectAddrTv.get().equals("223.5.5.5")||nowSelectAddrTv.get().equals("www.google.cn")){
+            if (nowSelectAddrTv.get().equals("223.5.5.5") || nowSelectAddrTv.get().equals("www.google.cn")) {
                 ToastUtils.showLong(mContext.get().getResources().getString(R.string.main_system_link));
                 return;
             }
@@ -397,15 +445,15 @@ public class MainAtyViewModule extends BaseViewModel {
     public BindingCommand delTypeModelClick = new BindingCommand(new BindingAction() {
         @Override
         public void call() {
-            if(typeNameTv.get().equals("rk3399")||typeNameTv.get().equals("飞思卡尔")){
+            if (typeNameTv.get().equals("rk3399") || typeNameTv.get().equals("飞思卡尔")) {
                 ToastUtils.showLong(mContext.get().getResources().getString(R.string.main_system_model_type));
                 return;
             }
             if (modelTypeList != null && modelTypeList.size() > 0) {
                 Iterator<ModelTypeEntity> iter = modelTypeList.iterator();
-                while (iter.hasNext()){
-                    ModelTypeEntity typeModel=iter.next();
-                    if(typeModel.getTypeName().equals(typeNameTv.get())){
+                while (iter.hasNext()) {
+                    ModelTypeEntity typeModel = iter.next();
+                    if (typeModel.getTypeName().equals(typeNameTv.get())) {
                         modelTypeList.remove(typeModel);
                         break;
                     }
@@ -448,7 +496,7 @@ public class MainAtyViewModule extends BaseViewModel {
         KLog.e(TAG, "开启了服务>当前的状态为：" + SPUtils.getInstance().getBoolean("isOpenService", true));
         openCloseTv.set(mContext.get().getResources().getString(R.string.main_off_service));
         //开启服务
-        mContext.get().startService(new Intent(mContext.get(), NetWorkService.class));
+        mContext.get().startService(new Intent(mContext.get(), /*NetWorkService.class*/NetWorkServiceTest.class));
     }
 
     //关闭网络检测服务
@@ -489,13 +537,13 @@ public class MainAtyViewModule extends BaseViewModel {
             SPUtils.getInstance().put("typeName", typeNameTv.get());
             SPUtils.getInstance().put("typeCommand", typeCommandTv.get());
             KLog.e(TAG, "\n\r" +
-                    "typeName--:"+typeNameTv.get()+"\n\r"+
-                    "typeCommand--:"+typeCommandTv.get()+"\n\r"+
-                    "cycleInterval--:"+cycleIntervalNum.get()+"\n\r"+
-                    "cycleIntervalPosition--:"+cycleIntervalPosition.get()+"\n\r"+
-                    "errScanCount--:"+ errScanCountNum.get()+"\n\r"+
-                    "errScanCountPosition--:"+ errScanCountPosition.get()+"\n\r"+
-                    "addr--:"+nowSelectAddrTv.get());
+                    "typeName--:" + typeNameTv.get() + "\n\r" +
+                    "typeCommand--:" + typeCommandTv.get() + "\n\r" +
+                    "cycleInterval--:" + cycleIntervalNum.get() + "\n\r" +
+                    "cycleIntervalPosition--:" + cycleIntervalPosition.get() + "\n\r" +
+                    "errScanCount--:" + errScanCountNum.get() + "\n\r" +
+                    "errScanCountPosition--:" + errScanCountPosition.get() + "\n\r" +
+                    "addr--:" + nowSelectAddrTv.get());
             //保存参数后重新启动Service
             RxBus.getDefault().post(new NetTimerParamEntity());
         }

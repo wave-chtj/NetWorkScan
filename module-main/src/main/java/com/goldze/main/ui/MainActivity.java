@@ -44,7 +44,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainAtyViewM
         rxPermissions.request(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}).subscribe(new Consumer<Boolean>() {
             @Override
             public void accept(Boolean aBoolean) throws Exception {
-                KLog.e("网络权限是否申请成功:" + aBoolean);
+                //KLog.e("网络权限是否申请成功:" + aBoolean);
             }
         });
     }
@@ -91,7 +91,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainAtyViewM
 
             }
         });
-        //链接地址
+        //访问地址
         binding.spNetConnect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -110,7 +110,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainAtyViewM
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 viewModel.typeNameTv.set(viewModel.modelTypeList.get(position).getTypeName());
                 viewModel.typeCommandTv.set(viewModel.modelTypeList.get(position).getTypeCommand());
-                KLog.e(TAG, "选中了typeNameTv:" + viewModel.typeCommandTv.get()+",typeCommandTv:"+viewModel.typeCommandTv.get());
+                KLog.e(TAG, "选中了typeNameTv:" + viewModel.typeNameTv.get()+",typeCommandTv:"+viewModel.typeCommandTv.get());
             }
 
             @Override

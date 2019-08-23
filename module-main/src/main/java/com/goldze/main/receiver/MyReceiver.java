@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.goldze.main.service.NetWorkService;
+import com.goldze.main.service.NetWorkServiceTest;
 import com.goldze.main.ui.MainActivity;
 
 import me.goldze.mvvmhabit.utils.KLog;
@@ -20,7 +21,7 @@ public class MyReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
-            Intent i = new Intent(context, NetWorkService.class);
+            Intent i = new Intent(context, /*NetWorkService.class*/NetWorkServiceTest.class);
             KLog.e(TAG,"进来了 myreceiver");
             context.startService(i);
         }

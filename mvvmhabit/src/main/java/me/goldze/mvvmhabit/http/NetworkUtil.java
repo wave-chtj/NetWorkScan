@@ -72,7 +72,7 @@ public class NetworkUtil {
      * @param context
      * @return
      */
-    public static int getNetState(Context context) {
+    public static int getNetState(Context context,String urlAddr) {
         try {
             ConnectivityManager connectivity = (ConnectivityManager) context
                     .getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -80,7 +80,7 @@ public class NetworkUtil {
                 NetworkInfo networkinfo = connectivity.getActiveNetworkInfo();
                 if (networkinfo != null) {
                     if (networkinfo.isAvailable() && networkinfo.isConnected()) {
-                        if (!pingIp())
+                        if (!pingIp(urlAddr))
                             return NET_CNNT_BAIDU_TIMEOUT;
                         else
                             return NET_CNNT_BAIDU_OK;
@@ -118,15 +118,12 @@ public class NetworkUtil {
         return result;
     }
     //Ping
-    public static boolean pingIp() {
+    public static boolean pingIp(String urlAddr) {
         boolean isConnect=false;
-        //如果未选中下拉框中的地址，则默认为url
-        String spAddr= SPUtils.getInstance().getString("addr",url);
-        KLog.e(TAG,"读取设置的连接地址|或者默认地址为："+spAddr);
         try {
-            if (spAddr != null) {
-                String command="ping -c 2 -w 5 " + spAddr;
-                KLog.e(TAG,"command ping:"+command);
+            if (urlAddr != null) {
+                String command="ping -c 2 -w 5 " + urlAddr;
+                //KLog.e(TAG,"正在对地址:"+urlAddr+"进行访问,执行的命令为："+command);
                 //代表ping 2 次 超时时间为5秒
                 Process p = Runtime.getRuntime().exec(command);//ping2次
                 int status = p.waitFor();
@@ -145,7 +142,6 @@ public class NetworkUtil {
             isConnect=false;
             KLog.e(TAG, e.getMessage());
         }
-        KLog.e(TAG,"isConnect:"+isConnect);
         return isConnect;
     }
 
