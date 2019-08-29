@@ -21,7 +21,6 @@ import me.goldze.mvvmhabit.base.BaseViewModel.ParameterField;
 import me.goldze.mvvmhabit.bus.Messenger;
 import me.goldze.mvvmhabit.utils.MaterialDialogUtils;
 
-
 /**
  * Created by goldze on 2017/6/15.
  * 一个拥有DataBinding框架的基Activity

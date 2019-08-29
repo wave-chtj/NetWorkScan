@@ -12,7 +12,7 @@
         <EditText
             android:id="@+id/et_addr"
             android:layout_width="match_parent"
-            android:layout_height="65dp"
+            android:layout_height="50dp"
             android:paddingLeft="10dp"
             android:drawableLeft="@drawable/network_add"
             android:layout_weight="1"
@@ -27,7 +27,7 @@
             android:id="@+id/tv_save"
             android:gravity="center"
             android:padding="10dp"
-            android:textColor="@color/darkred"
+            android:textColor="@color/gray"
             android:text="@string/main_dialog_save" />
     </LinearLayout>
 

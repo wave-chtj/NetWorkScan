@@ -58,7 +58,7 @@ public class MainAtyViewModule extends BaseViewModel {
     public List<ModelTypeEntity> modelTypeList = new ArrayList<>();//机型
     public ObservableField<String> typeNameTv = new ObservableField<>();//当前选中的机型名称
     public ObservableField<String> typeCommandTv = new ObservableField<>();//当前机型对应的shell命令
-    public ObservableField<String> modelTypeNameByFirst = new ObservableField<>("机型不详");//当前查询出来的机型
+    public ObservableField<String> modelTypeNameByFirst = new ObservableField<>();//当前查询出来的机型
     DbHelper dbHelper = null;//数据库服务类
     PopupWindow popupWindow;//弹窗  用于新增机型|访问地址
 

@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import com.alibaba.android.arouter.facade.annotation.Route;
+import com.chtj.base_iotutils.screen.ScreenAdaptation;
 import com.goldze.base.router.RouterActivityPath;
 import com.goldze.main.R;
 import com.goldze.main.BR;
@@ -52,6 +53,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainAtyViewM
     @Override
     public void initParam() {
         super.initParam();
+        ScreenAdaptation.setCustomDensity(this,this.getApplication(),360);
     }
 
     @Override
