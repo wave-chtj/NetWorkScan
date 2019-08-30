@@ -40,6 +40,8 @@ dependencies {
     api project(':mvvmhabit')
     //物联网开发基础包
     api rootProject.ext.dependencies["base_iotutils"]
+    //屏幕适配
+    api rootProject.ext.dependencies["autosize"]
     //阿里路由框架
     api rootProject.ext.dependencies["arouter-api"]
     api rootProject.ext.dependencies.jobqueue

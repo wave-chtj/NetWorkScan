@@ -2,6 +2,7 @@ package com.goldze.main.ui;
 
 import android.Manifest;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -13,6 +14,10 @@ import com.goldze.main.BR;
 import com.goldze.main.databinding.ActivityMainBinding;
 import com.goldze.main.entity.ChangeDataEntity;
 import com.tbruyelle.rxpermissions2.RxPermissions;
+
+import java.util.Arrays;
+import java.util.List;
+
 import io.reactivex.functions.Consumer;
 import me.goldze.mvvmhabit.base.BaseActivity;
 import me.goldze.mvvmhabit.bus.RxBus;
@@ -24,7 +29,7 @@ import me.goldze.mvvmhabit.utils.Utils;
  * Created by goldze on 2018/6/21
  */
 @Route(path = RouterActivityPath.Main.PAGER_MAIN)
-public class MainActivity extends BaseActivity<ActivityMainBinding, MainAtyViewModule> {
+public class MainActivity extends BaseActivity<ActivityMainBinding, MainAtyViewModuleTest> {
     public static final String TAG = MainActivity.class.getSimpleName();
     String[] cycleIntervalInfo = Utils.getContext().getResources().getStringArray(R.array.main_cycleInterval);//网络检测间隔时间
     String[] errScanCountInfo =  Utils.getContext().getResources().getStringArray(R.array.main_errScanCount);//异常扫描的次数
@@ -53,13 +58,18 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainAtyViewM
     @Override
     public void initParam() {
         super.initParam();
-        ScreenAdaptation.setCustomDensity(this,this.getApplication(),360);
     }
 
     @Override
     public void initViewObservable() {
         super.initViewObservable();
         viewModel.mContext.set(this);
+        TestArrayAdapter testArrayAdapter1=new TestArrayAdapter(MainActivity.this, Arrays.asList(cycleIntervalInfo));
+        binding.spCycleInterval.setAdapter(testArrayAdapter1);
+        TestArrayAdapter testArrayAdapter2=new TestArrayAdapter(MainActivity.this, Arrays.asList(errScanCountInfo));
+        binding.spErrScanCount.setAdapter(testArrayAdapter2);
+
+
         int cycleIntervalPosition = SPUtils.getInstance().getInt("cycleIntervalPosition", 0);
         int netErrCountPosition = SPUtils.getInstance().getInt("errScanCountPosition", 0);
         KLog.e("cycleIntervalPosition:" + cycleIntervalPosition + ",netErrCountPosition:" + netErrCountPosition);
@@ -128,7 +138,8 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainAtyViewM
         RxBus.getDefault().toObservable(ChangeDataEntity.class).subscribe(new Consumer<ChangeDataEntity>() {
             @Override
             public void accept(ChangeDataEntity changeDataEntity) throws Exception {
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_dropdown_item_1line, android.R.id.text1, changeDataEntity.getData());
+               // ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_dropdown_item_1line, android.R.id.text1, changeDataEntity.getData());
+                TestArrayAdapter adapter=new TestArrayAdapter(MainActivity.this,changeDataEntity.getData());
                 if(changeDataEntity.getData_type()== ChangeDataEntity.DATA_TYPE.TYPE_CONN_ADDR){
                     binding.spNetConnect.setAdapter(adapter);
                     binding.spNetConnect.setSelection(changeDataEntity.getDefaultPositon());

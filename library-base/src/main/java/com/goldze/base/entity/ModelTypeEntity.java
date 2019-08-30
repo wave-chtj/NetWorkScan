@@ -1,9 +1,13 @@
-package com.goldze.main.entity;
+package com.goldze.base.entity;
 
 public class ModelTypeEntity {
     private String id;
     private String typeName;
     private String typeCommand;
+    private String androidversion;
+
+    public ModelTypeEntity() {
+    }
 
     public ModelTypeEntity(String id, String typeName, String typeCommand) {
         this.id = id;
@@ -11,7 +15,19 @@ public class ModelTypeEntity {
         this.typeCommand = typeCommand;
     }
 
-    public ModelTypeEntity() {
+    public ModelTypeEntity(String id, String typeName, String typeCommand, String androidversion) {
+        this.id = id;
+        this.typeName = typeName;
+        this.typeCommand = typeCommand;
+        this.androidversion = androidversion;
+    }
+
+    public String getAndroidversion() {
+        return androidversion;
+    }
+
+    public void setAndroidversion(String androidversion) {
+        this.androidversion = androidversion;
     }
 
     public String getId() {

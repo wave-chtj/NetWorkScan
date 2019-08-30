@@ -6,11 +6,12 @@
 
         <variable
             name="viewModel"
-            type="com.goldze.main.ui.MainAtyViewModule" />
+            type="com.goldze.main.ui.MainAtyViewModuleTest" />
     </data>
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fillViewport="true"
         android:scrollbars="none">
         <LinearLayout
             android:layout_width="match_parent"
@@ -18,7 +19,7 @@
             android:background="@color/white"
             android:orientation="vertical"
             android:paddingLeft="10dp"
-            android:paddingTop="30dp"
+            android:paddingTop="20dp"
             android:paddingRight="10dp">
             <LinearLayout
                 android:layout_width="match_parent"
@@ -26,11 +27,12 @@
                 android:orientation="horizontal">
                 <TextView
                     android:layout_width="wrap_content"
-                    android:textSize="15sp"
+                    android:textSize="13sp"
+                    android:textColor="@color/black"
                     android:layout_height="wrap_content"
                     android:text="@string/main_now_model_type"/>
                 <TextView
-                    android:textSize="15sp"
+                    android:textSize="13sp"
                     android:textStyle="bold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -38,13 +40,13 @@
             </LinearLayout>
             <TextView
                 android:layout_marginTop="7dp"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/main_model_type_err_prompt"/>
             <!--循环间隔-->
             <TextView
-                android:textSize="15sp"
+                android:textSize="13sp"
                 android:layout_marginTop="7dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -55,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="7dp"
                 android:text="@string/main_first_start_set_model"
-                android:textSize="12sp" />
+                android:textSize="11sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -63,13 +65,13 @@
                 android:layout_marginTop="7dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="@drawable/btn_radius_bg"
+                android:background="@drawable/txt_radius_bg"
                 android:orientation="horizontal">
 
                 <Spinner
                     android:id="@+id/sp_model"
                     android:layout_width="match_parent"
-                    android:layout_height="30dp"
+                    android:layout_height="25dp"
                     android:layout_weight="1" />
 
             </LinearLayout>
@@ -79,7 +81,7 @@
                 android:orientation="horizontal">
                 <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="30dp"
+                    android:layout_height="20dp"
                     android:layout_alignParentRight="true"
                     android:layout_centerInParent="true"
                     android:orientation="horizontal">
@@ -90,7 +92,7 @@
                         android:text="@string/main_net_delete"
                         binding:onClickCommand="@{viewModel.delTypeModelClick}"
                         android:textColor="@color/blue"
-                        android:textSize="15sp" />
+                        android:textSize="13sp" />
                     <View
                         android:layout_width="1dp"
                         android:layout_margin="10dp"
@@ -103,7 +105,7 @@
                         android:text="@string/main_net_add"
                         binding:onClickCommand="@{viewModel.addTypeModelClick}"
                         android:textColor="@color/blue"
-                        android:textSize="15sp" />
+                        android:textSize="13sp" />
                 </LinearLayout>
 
             </RelativeLayout>
@@ -117,7 +119,7 @@
 
             <!--循环间隔-->
             <TextView
-                android:textSize="15sp"
+                android:textSize="13sp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/main_net_check_interval"
@@ -129,20 +131,19 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="@drawable/btn_radius_bg"
+                android:background="@drawable/txt_radius_bg"
                 android:orientation="horizontal">
 
                 <Spinner
                     android:id="@+id/sp_cycle_interval"
                     android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:layout_weight="1"
-                    android:entries="@array/main_cycleInterval" />
+                    android:layout_height="25dp"
+                    android:layout_weight="1" />
 
             </LinearLayout>
 
             <TextView
-                android:textSize="15sp"
+                android:textSize="13sp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -154,7 +155,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:text="@string/main_net_abnormal_example"
-                android:textSize="12sp" />
+                android:textSize="11sp" />
 
 
             <LinearLayout
@@ -163,15 +164,14 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="@drawable/btn_radius_bg"
+                android:background="@drawable/txt_radius_bg"
                 android:orientation="horizontal">
 
                 <Spinner
                     android:id="@+id/sp_err_scan_count"
                     android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:layout_weight="1"
-                    android:entries="@array/main_errScanCount" />
+                    android:layout_height="25dp"
+                    android:layout_weight="1" />
 
             </LinearLayout>
 
@@ -179,6 +179,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:textSize="13sp"
                 android:text="@string/main_net_default_address"
                 android:textColor="@color/black" />
 
@@ -188,13 +189,13 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="@drawable/btn_radius_bg"
+                android:background="@drawable/txt_radius_bg"
                 android:orientation="horizontal">
 
                 <Spinner
                     android:id="@+id/sp_net_connect"
                     android:layout_width="match_parent"
-                    android:layout_height="30dp"
+                    android:layout_height="25dp"
                     android:layout_weight="1" />
 
             </LinearLayout>
@@ -205,7 +206,7 @@
                 android:orientation="horizontal">
                 <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="30dp"
+                    android:layout_height="20dp"
                     android:layout_alignParentRight="true"
                     android:layout_centerInParent="true"
                     android:orientation="horizontal">
@@ -216,7 +217,7 @@
                         android:text="@string/main_net_delete"
                         binding:onClickCommand="@{viewModel.delAddrClick}"
                         android:textColor="@color/blue"
-                        android:textSize="15sp" />
+                        android:textSize="13sp" />
                     <View
                         android:layout_width="1dp"
                         android:layout_margin="10dp"
@@ -229,26 +230,29 @@
                         android:text="@string/main_net_add"
                         binding:onClickCommand="@{viewModel.addAddrClick}"
                         android:textColor="@color/blue"
-                        android:textSize="15sp" />
+                        android:textSize="13sp" />
                 </LinearLayout>
 
             </RelativeLayout>
 
             <Button
                 android:layout_width="match_parent"
-                android:layout_height="45dp"
+                android:layout_height="35dp"
+                android:textSize="12sp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:layout_marginTop="20dp"
+                android:background="@drawable/btn_radius_bg"
+                android:layout_marginTop="15dp"
                 android:text="@string/main_save_re_enable"
                 binding:onClickCommand="@{viewModel.setParamClick}" />
-
             <Button
+                android:textSize="12sp"
                 android:layout_width="match_parent"
-                android:layout_height="45dp"
+                android:layout_height="35dp"
                 android:layout_marginLeft="10dp"
+                android:background="@drawable/btn_radius_bg"
                 android:layout_marginRight="10dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="15dp"
                 android:text="@={viewModel.openCloseTv}"
                 binding:onClickCommand="@{viewModel.closeServiceClick}" />
 
