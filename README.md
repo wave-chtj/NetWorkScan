@@ -3,13 +3,14 @@
 //该项目主要是定期检查4G网络是否正常连接，以下为状态的操作流程
 //正常状态：此时虽然能够连接4G网络，但是避免中途产生断网情况，需要按设定的周期检测网络情况
 //异常状态：产生网络异常的情况下，需要对断网情况周期缩短至2分钟检测一次，并且按设定的次数进行判定，达到次数时按 step2步骤来操作
-```
+```操作
 ## 2.平台节点不一致 按如下命令来区分4g模块复位
 ### 2.1 adb命令详情
- 型号  | 对应命令  | 备注
+ 型号  | 对应命令  | 安卓版本
  ---- | ----- | ------  
- rk3399  | echo 1 > /sys/class/spi_sim_ctl/state | commandToReset[0] 
- 飞思卡尔  | echo 1 > /sys/devices/platform/imx6q_sim/sim_sysfs/state | commandToReset[1]  
+ rk3399  | echo 1 > /sys/class/spi_sim_ctl/state | 7.1.2 
+ 飞思卡尔1  | echo 1 > /sys/devices/platform/imx6q_sim/sim_sysfs/state | 4.4.2  
+ 飞思卡尔2  | echo 1 > /sys/bus/platform/devices/sim-gpios.40/sim_sysfs/state | 5.1.1  
 
 ### 2.2 操作步骤
 //找到module-main：com.goldze.main.service.NetWorkService 在reSetAndReboot()方法中选择commandToReset对应的命令
