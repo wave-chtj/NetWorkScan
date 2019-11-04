@@ -1,4 +1,4 @@
 package com.goldze.main.entity;
 
-public class ServiceAboutEntity  {
+public class ThreadNotice {
 }

@@ -1,6 +1,8 @@
 <resources>
     <string name="main_name">主业务组件</string>
     <string-array name="main_cycleInterval">
+        <item>1</item>
+        <item>2</item>
         <item>3</item>
         <item>6</item>
         <item>9</item>
@@ -9,6 +11,8 @@
     </string-array>
 
     <string-array name="main_errScanCount">
+        <item>2</item>
+        <item>3</item>
         <item>5</item>
         <item>10</item>
         <item>15</item>

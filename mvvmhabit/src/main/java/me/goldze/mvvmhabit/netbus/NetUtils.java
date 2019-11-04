@@ -107,14 +107,6 @@ public class NetUtils {
      * @return 是否正确
      */
     public static boolean isNet4GConnted(Context context) {
-        boolean isMobileNet,isMobile4Gnet = false;
-        ConnectivityManager mConnectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo mMobileNetworkInfo = mConnectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        if (mMobileNetworkInfo != null) {
-            isMobileNet = mMobileNetworkInfo.isAvailable();
-        } else {
-            isMobileNet = false;
-        }
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         int type = telephonyManager.getNetworkType();
         switch (type) {
@@ -124,8 +116,7 @@ public class NetUtils {
             case TelephonyManager.NETWORK_TYPE_1xRTT:
             case TelephonyManager.NETWORK_TYPE_IDEN:
                 //return NetTypeDetail.NET_STATE_2G_CONNECTED;
-                isMobile4Gnet = false;
-                break;
+                return  false;
             case TelephonyManager.NETWORK_TYPE_UMTS:
             case TelephonyManager.NETWORK_TYPE_EVDO_0:
             case TelephonyManager.NETWORK_TYPE_EVDO_A:
@@ -136,18 +127,16 @@ public class NetUtils {
             case TelephonyManager.NETWORK_TYPE_EHRPD:
             case TelephonyManager.NETWORK_TYPE_HSPAP:
                 //return NetTypeDetail.NET_STATE_3G_CONNECTED;
-                isMobile4Gnet = false;
-                break;
+                return  false;
             case TelephonyManager.NETWORK_TYPE_LTE:
+            case TelephonyManager.NETWORK_TYPE_IWLAN:
+            case 19:
                 //return NetTypeDetail.NET_STATE_4G_CONNECTED;
-                isMobile4Gnet = true;
-                break;
+                return true;
             default:
                 //return NetTypeDetail.NET_STATE_UNKNOWN;
-                isMobile4Gnet = false;
-                break;
+                return  false;
         }
-        return (isMobileNet&&isMobile4Gnet);
     }
 
     /**

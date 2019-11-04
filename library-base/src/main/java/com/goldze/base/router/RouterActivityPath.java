@@ -14,6 +14,8 @@ public class RouterActivityPath {
         private static final String MAIN = "/main";
         /*主业务界面*/
         public static final String PAGER_MAIN = MAIN +"/Main";
+        /*主业务界面*/
+        public static final String PAGER_MAIN_SECOND = MAIN +"/MainSecond";
     }
 
     /**

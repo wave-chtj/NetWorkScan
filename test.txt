@@ -1,0 +1,51 @@
+while(1)
+  {
+    if(is4G)
+    {
+      isok = ping;
+      if(rebootcount > 2)  //整机重启次数大于2次的情况
+      {
+        if(isok)
+        {
+          rebootcount = 0;
+          delay(1);
+          continue;
+        }
+       else
+       {
+         pingerrnum++;
+         if(pingerrnum >= 2)
+         {
+           lterstcount++;
+           if(lterstcount > 2)
+           {
+             rebootcount++;
+             if(rebootcount > 2)
+             {
+               ;
+             }
+             else
+             {
+               reboot;
+             }
+
+           }
+           resetlte;
+           pingerrnum = 0;
+           delay(1);
+         }
+
+         delay(1);
+         continue;
+       }
+       else
+       {
+         ;
+       }
+
+    }
+    else
+    {
+      ;
+    }
+  }

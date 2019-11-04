@@ -4,6 +4,7 @@ import android.content.IntentFilter;
 import android.os.Build;
 
 import com.birbit.android.jobqueue.JobManager;
+import com.chtj.base_iotutils.keepservice.BaseIotUtils;
 import com.goldze.base.config.ModuleLifecycleConfig;
 import me.goldze.mvvmhabit.base.BaseApplication;
 import me.goldze.mvvmhabit.netbus.NetStateReceiver;

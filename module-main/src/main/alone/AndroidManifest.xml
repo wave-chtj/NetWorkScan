@@ -18,6 +18,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.goldze.main.ui.MainActivity"></activity>
+        <activity android:name="com.goldze.main.ui.by_old.MainActivity"></activity>
     </application>
 </manifest>

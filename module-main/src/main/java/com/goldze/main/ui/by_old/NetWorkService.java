@@ -1,4 +1,4 @@
-package com.goldze.main.service;
+package com.goldze.main.ui.by_old;
 
 import android.app.Service;
 import android.content.Intent;
@@ -7,7 +7,8 @@ import android.support.annotation.Nullable;
 
 import com.chtj.base_iotutils.ShellUtils;
 import com.goldze.main.entity.NetTimerParamEntity;
-import com.goldze.main.entity.ServiceAboutEntity;
+import com.goldze.main.entity.ThreadNotice;
+import com.goldze.main.utils.KeyValueConst;
 
 import java.util.concurrent.TimeUnit;
 
@@ -28,9 +29,11 @@ import me.goldze.mvvmhabit.utils.SPUtils;
  * 现有机型
  * "echo 1 > /sys/class/spi_sim_ctl/state",//rk3399
  * "echo 1 > /sys/devices/platform/imx6q_sim/sim_sysfs/state"//飞思卡尔
+ *
+ * "/dev/lte_state"
  */
-public class NetWorkServiceTest extends Service {
-    public static final String TAG = NetWorkServiceTest.class.getSimpleName();
+public class NetWorkService extends Service {
+    public static final String TAG = NetWorkService.class.getSimpleName();
     private int initialCount = 0;//网络异常时的次数累加
     int netUserSetErrCount = 5;//用户设置 网络异常时需要扫描的次数
     int cycleInterval;//按设定的周期检查网络
@@ -54,8 +57,8 @@ public class NetWorkServiceTest extends Service {
         mNetChangeObserver = new NetChangeObserver() {
             @Override
             public void onNetConnected(NetUtils.NetType type) {
-                int netStatus = NetworkUtil.getNetState(NetWorkServiceTest.this, urlAddr);
-                if (netStatus == NetworkUtil.NET_CNNT_BAIDU_OK) {
+                NetworkUtil.NET_TYPE netStatus = NetworkUtil.getNetState(NetWorkService.this, urlAddr);
+                if (netStatus == NetworkUtil.NET_TYPE.NET_CNNT_OK) {
                     //如果网络已连接 并且能够正常访问
                     closeTimerTask2();
                     if(!isRunningTask1){
@@ -98,11 +101,11 @@ public class NetWorkServiceTest extends Service {
      * 初始化一些基本参数
      */
     private void initSomeParam() {
-        urlAddr = SPUtils.getInstance().getString("addr", NetworkUtil.url);
+        urlAddr = SPUtils.getInstance().getString(KeyValueConst.ADDR, NetworkUtil.url);
         KLog.e(TAG, "您当前设置的访问地址为：" + urlAddr);
-        cycleInterval = SPUtils.getInstance().getInt("cycleInterval", 3);
+        cycleInterval = SPUtils.getInstance().getInt(KeyValueConst.CYCLE_INTERVAL, 3);
         KLog.e(TAG, "循环判断网络的间隔时间为：" + cycleInterval + " 分钟");
-        netUserSetErrCount = SPUtils.getInstance().getInt("errScanCount", 5);
+        netUserSetErrCount = SPUtils.getInstance().getInt(KeyValueConst.ERR_SCAN_COUNT, 5);
         KLog.e(TAG, "设置的异常扫描次数为:" + netUserSetErrCount + ",间隔时间为：2分钟");
     }
 
@@ -110,7 +113,7 @@ public class NetWorkServiceTest extends Service {
      * 4g模块复位，并且重启
      */
     public void reSetAndReboot() {
-        Disposable disposable = RxBus.getDefault().toObservable(String.class).subscribe(new Consumer<String>() {
+        RxBus.getDefault().toObservable(String.class).subscribe(new Consumer<String>() {
             @Override
             public void accept(String s) throws Exception {
                 if (s.equals("reset")) {
@@ -118,14 +121,7 @@ public class NetWorkServiceTest extends Service {
                     String command = SPUtils.getInstance().getString("typeCommand", commandToReset);
                     ShellUtils.CommandResult resetCommand = ShellUtils.execCommand(command, false);
                     KLog.e("resetCommand result:" + resetCommand.result + ",successMeg:" + resetCommand.successMsg + ",errMeg:" + resetCommand.errorMsg);
-
-                    String message = "";
-                    if (resetCommand.result == 0) {
-                        message = "复位成功";
-                    } else {
-                        message = "复位失败,请留意是否机型选择错误！";
-                    }
-                    KLog.e(TAG, message);
+                    KLog.e(TAG, resetCommand.result==0?"复位成功":"复位失败,请留意是否机型选择错误！");
                     initialCount = 0;//清除次数 重新再次计算次数
                 } else {
 
@@ -158,9 +154,9 @@ public class NetWorkServiceTest extends Service {
      * 监听是否需要关闭服务
      */
     public void listenerCloseService() {
-        RxBus.getDefault().toObservable(ServiceAboutEntity.class).subscribe(new Consumer<ServiceAboutEntity>() {
+        RxBus.getDefault().toObservable(ThreadNotice.class).subscribe(new Consumer<ThreadNotice>() {
             @Override
-            public void accept(ServiceAboutEntity serviceAboutEntity) throws Exception {
+            public void accept(ThreadNotice threadNotice) throws Exception {
                 stopSelf();
                 //调用onDestory
             }
@@ -205,17 +201,17 @@ public class NetWorkServiceTest extends Service {
                         //判断当前线程是否需要运行
                         //一般情况下 两个线程不会并行
                         //判断当前是否是手机网络连接  并且网络为4G
-                        boolean isMobileConn = NetUtils.isNet4GConnted(NetWorkServiceTest.this);
+                        boolean isMobileConn = NetUtils.isNet4GConnted(NetWorkService.this);
                         if (isMobileConn) {//如果当前网络为4G
                             //获取当前网络状态
-                            int netStatus = NetworkUtil.getNetState(NetWorkServiceTest.this, urlAddr);
-                            if (netStatus == NetworkUtil.NET_CNNT_BAIDU_OK) {//如果网络正常 能够正常访问网络
+                            NetworkUtil.NET_TYPE netStatus = NetworkUtil.getNetState(NetWorkService.this, urlAddr);
+                            if (netStatus == NetworkUtil.NET_TYPE.NET_CNNT_OK) {//如果网络正常 能够正常访问网络
                                 KLog.e(TAG, "1能够正常访问网络 是否为4G:" + isMobileConn);
                             } else {
                                 String message = "";
-                                if (netStatus == NetworkUtil.NET_CNNT_BAIDU_TIMEOUT) {
+                                if (netStatus == NetworkUtil.NET_TYPE.NET_CNNT_BAIDU_TIMEOUT) {
                                     message = "网络连接超时";
-                                } else if (netStatus == NetworkUtil.NET_NOT_PREPARE) {
+                                } else if (netStatus == NetworkUtil.NET_TYPE.NET_NOT_PREPARE) {
                                     message = "网络未准备好";
                                 } else {
                                     message = "网络异常";
@@ -250,17 +246,17 @@ public class NetWorkServiceTest extends Service {
                 .subscribe(new Consumer<Long>() {
                     @Override
                     public void accept(Long count) throws Exception {
-                        int netStatus = NetworkUtil.getNetState(NetWorkServiceTest.this, urlAddr);
+                        NetworkUtil.NET_TYPE netStatus = NetworkUtil.getNetState(NetWorkService.this, urlAddr);
                         String message = "";
-                        if (netStatus == NetworkUtil.NET_CNNT_BAIDU_TIMEOUT) {
+                        if (netStatus == NetworkUtil.NET_TYPE.NET_CNNT_BAIDU_TIMEOUT) {
                             message = "网络连接超时";
-                        } else if (netStatus == NetworkUtil.NET_NOT_PREPARE) {
+                        } else if (netStatus == NetworkUtil.NET_TYPE.NET_NOT_PREPARE) {
                             message = "网络未准备好";
                         } else {
                             message = "网络异常";
                         }
                         KLog.e(TAG, "2当前网络状态：" + message);
-                        if (netStatus == NetworkUtil.NET_CNNT_BAIDU_OK) {
+                        if (netStatus == NetworkUtil.NET_TYPE.NET_CNNT_OK) {
                             initialCount = 0;
                             //执行终止命令
                             //继续执行第一个线程 检查网络是否会存在异常
