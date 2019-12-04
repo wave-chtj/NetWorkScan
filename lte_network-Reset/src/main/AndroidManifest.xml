@@ -1,0 +1,17 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.face.lte_networkscanreboot">
+    <application>
+        <!--在自己组件中注册Activity-->
+        <activity android:name=".ui.MainSecondAty"/>
+        <service android:name=".ui.NetWorkSecondService"/>
+        <receiver
+            android:name=".receiver.MyReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter android:priority="1000">
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="com.close.service.and.notification1"/>
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

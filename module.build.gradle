@@ -6,12 +6,31 @@ if (isBuildModule.toBoolean()) {
     apply plugin: 'com.android.library'
 }
 android {
+    signingConfigs {
+        debug {
+            storeFile file('D:\\face.jks')
+            storePassword 'facefuture'
+            keyAlias = 'key0'
+            keyPassword 'facefuture'
+        }
+        release {
+            storeFile file('D:\\face.jks')
+            storePassword 'facefuture'
+            keyAlias = 'key0'
+            keyPassword 'facefuture'
+        }
+    }
+
     compileSdkVersion rootProject.ext.android.compileSdkVersion
     defaultConfig {
         minSdkVersion rootProject.ext.android.minSdkVersion
         targetSdkVersion rootProject.ext.android.targetSdkVersion
         versionCode rootProject.ext.android.versionCode
         versionName rootProject.ext.android.versionName
+        if (isBuildModule.toBoolean()) {
+            //作为独立App应用运行
+            multiDexEnabled true
+        }
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         //阿里路由框架配置
         javaCompileOptions {
@@ -39,10 +58,12 @@ android {
     buildTypes {
         debug {
             minifyEnabled false
+            signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

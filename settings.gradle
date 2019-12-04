@@ -1,2 +1,2 @@
-include ':app', ':library-base', ':module-main', ':library-res', ':mvvmhabit'
+include ':app', ':library-base', ':lte_network', ':lte_network-Reset', ':eth-network-enable', ':library-res', ':mvvmhabit'
 

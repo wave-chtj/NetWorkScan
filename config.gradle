@@ -4,10 +4,17 @@ ext {
             compileSdkVersion: 27,
             buildToolsVersion: "27.0.2",
             applicationId    : "com.face.networkscan",
-            minSdkVersion    : 15,
+            minSdkVersion    : 19,
             targetSdkVersion : 27,
-            versionCode      : 11,
-            versionName      : "1.1.2",
+            //module-4Gcheck
+            versionCode_network            : 11,
+            versionName_network            : "1.2.0",
+            //module-4Gcheck-Reset
+            versionCode_network_Reset      : 11,
+            versionName_network_Reset      : "1.2.0",
+            //module-ethlinstener
+            versionCode_netCheck_eth_enable        : 12,
+            versionName_netCheck_eth_enable        : "1.2.1",
     ]
     //version配置
     versions = [
@@ -65,7 +72,8 @@ ext {
             "bindingcollectionadapter-recyclerview": "me.tatarka.bindingcollectionadapter2:bindingcollectionadapter-recyclerview:2.2.0",
             //Google AAC
             "lifecycle-extensions"                 : "android.arch.lifecycle:extensions:1.1.1",
-            "lifecycle-compiler"                   : "android.arch.lifecycle:compiler:1.1.1"
+            "lifecycle-compiler"                   : "android.arch.lifecycle:compiler:1.1.1",
+            "multiDexEnabled"                      : "com.android.support:multidex:1.0.1"
     ]
 }
 

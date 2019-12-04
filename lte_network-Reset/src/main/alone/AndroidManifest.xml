@@ -1,0 +1,43 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.face.lte_networkscanreboot">
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.GET_TASKS"/>
+    <!--开机启动-->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <application
+        android:name="com.face.base.debug.DebugApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/network"
+        android:roundIcon="@mipmap/network"
+        android:label="@string/networkscanreboot_name"
+        tools:replace="label"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+
+            android:name="com.face.lte_networkscanreboot.debug.DebugActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.face.lte_networkscanreboot.ui.MainSecondAty"></activity>
+        <meta-data
+            android:name="design_width_in_dp"
+            android:value="360"/>
+        <service android:name="com.face.lte_networkscanreboot.ui.NetWorkSecondService"/>
+        <receiver
+            android:name="com.face.lte_networkscanreboot.receiver.MyReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter android:priority="1000">
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="com.close.service.and.notification1"/>
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

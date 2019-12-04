@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="main_select_model">请选择当前型号</string>
+    <string name="main_net_check_interval">网络检查间隔时间(分钟)</string>
+    <string name="main_net_err_count">网络异常扫描次数</string>
+    <string name="main_net_abnormal_example">例如：连接超时,连接失败,未准备好,用于重置4G的判断</string>
+    <string name="main_net_default_address">默认访问地址</string>
+    <string name="main_net_delete">删除</string>
+    <string name="main_net_add">添加</string>
+    <string name="main_save_re_enable">保存并重新启用</string>
+    <string name="main_off_service">关闭后台服务</string>
+    <string name="main_on_service">开启后台服务</string>
+    <string name="main_input_link_addr">请输入访问地址</string>
+    <string name="main_dialog_save">保存</string>
+    <string name="main_input_ok_addr">请输入正确的地址!</string>
+    <string name="main_input_ok_model">请输入正确的型号!</string>
+    <string name="main_input_model_name">请输入机型</string>
+    <string name="main_input_model_command">请输入命令行</string>
+    <string name="main_first_start_set_model">首次启动时,添加机型,以备选择</string>
+    <string name="main_system_model_type">系统内置机型,请勿删除！</string>
+    <string name="main_system_link">系统内置访问地址,请勿删除！</string>
+    <string name="main_exist_model_type_rename">数据库存在相同的机型,请更换名称！</string>
+    <string name="main_exist_link_rename">数据库存在相同的访问地址,请更换名称！</string>
+    <string name="main_model_type_err_prompt">*如有误,请在下方进行选择</string>
+    <string name="main_now_model_type">您当前的机型为：</string>
+
+</resources>

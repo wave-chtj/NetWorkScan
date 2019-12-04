@@ -8,6 +8,7 @@ android {
         targetSdkVersion rootProject.ext.android.targetSdkVersion
         versionCode rootProject.ext.android.versionCode
         versionName rootProject.ext.android.versionName
+        multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         //阿里路由框架配置
         javaCompileOptions {
@@ -20,6 +21,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
         }
     }
     lintOptions {
@@ -59,7 +61,9 @@ dependencies {
         implementation project(':library-base')
     } else {
         //主业务模块
-        implementation project(':module-main')
+        //implementation project(':module-ethlinstener')
+        implementation project(':module-4Gcheck')
+        //implementation project(':module-4Gcheck-reboot')
         //身份验证模块
         //implementation project(':module-sign')
         //应用模块

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="#ffffff"
+    android:orientation="horizontal">
+    <LinearLayout
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <LinearLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/et_addr_bg"
+            android:orientation="vertical">
+            <EditText
+                android:id="@+id/et_typename"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:paddingLeft="10dp"
+                android:drawableLeft="@drawable/typename"
+                android:layout_weight="1"
+                android:background="@null"
+                android:hint="@string/main_input_model_name"
+                android:drawablePadding="10dp"
+                android:text="" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/gray"/>
+            <EditText
+                android:id="@+id/et_command"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:paddingLeft="10dp"
+                android:background="@null"
+                android:drawableLeft="@drawable/shellcommand"
+                android:layout_weight="1"
+                android:hint="@string/main_input_model_command"
+                android:drawablePadding="10dp"
+                android:text="" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="70dp"
+            android:layout_height="match_parent"
+            android:id="@+id/tv_save"
+            android:background="@drawable/et_type_model_bg"
+            android:gravity="center"
+            android:padding="10dp"
+            android:layout_marginLeft="10dp"
+            android:textColor="@color/gray"
+            android:text="@string/main_dialog_save" />
+    </LinearLayout>
+
+</LinearLayout>

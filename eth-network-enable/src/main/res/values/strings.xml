@@ -1,0 +1,12 @@
+<resources>
+    <string name="ethlinstener_name">以太网检测</string>
+    <string-array name="ethlinstener_cycleInterval">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>6</item>
+        <item>9</item>
+        <item>12</item>
+        <item>15</item>
+    </string-array>
+</resources>

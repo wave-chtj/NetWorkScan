@@ -124,6 +124,7 @@ public class NetworkUtil {
         }
     }
 
+
     /**
      * 网络异常时的再次确认 这时候要去访问国内外的地址
      * @param url

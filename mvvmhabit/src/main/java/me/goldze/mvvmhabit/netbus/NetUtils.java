@@ -17,7 +17,7 @@ import me.goldze.mvvmhabit.utils.KLog;
  */
 public class NetUtils {
     public static enum NetType {
-        WIFI, CMNET, CMWAP, NONE
+        WIFI, CMNET, CMWAP, NONE,ETH
     }
 
     public static enum NetTypeDetail {
@@ -97,6 +97,8 @@ public class NetUtils {
             }
         } else if (nType == ConnectivityManager.TYPE_WIFI) {
             return NetType.WIFI;
+        }else if(nType==ConnectivityManager.TYPE_ETHERNET){
+            return NetType.ETH;
         }
         return NetType.NONE;
     }
