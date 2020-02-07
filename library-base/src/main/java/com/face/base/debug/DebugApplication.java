@@ -8,6 +8,7 @@ import com.face.base.config.ModuleLifecycleConfig;
 
 import me.goldze.mvvmhabit.base.BaseApplication;
 import me.goldze.mvvmhabit.netbus.NetStateReceiver;
+import me.goldze.mvvmhabit.utils.KLog;
 
 /**
  * Created by goldze on 2018/6/25 0025.
@@ -18,6 +19,7 @@ public class DebugApplication extends BaseApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        //KLog.init(true);
         BaseIotUtils.instance().create(this);
         //初始化组件(靠前)
         ModuleLifecycleConfig.getInstance().initModuleAhead(this);

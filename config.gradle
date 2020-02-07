@@ -7,11 +7,11 @@ ext {
             minSdkVersion    : 19,
             targetSdkVersion : 27,
             //module-4Gcheck
-            versionCode_network            : 11,
-            versionName_network            : "1.2.0",
+            versionCode_network            : 12,
+            versionName_network            : "1.2.1",
             //module-4Gcheck-Reset
-            versionCode_network_Reset      : 11,
-            versionName_network_Reset      : "1.2.0",
+            versionCode_network_Reset      : 12,
+            versionName_network_Reset      : "1.2.1",
             //module-ethlinstener
             versionCode_netCheck_eth_enable        : 12,
             versionName_netCheck_eth_enable        : "1.2.1",

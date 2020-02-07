@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="main_select_model">请选择当前型号</string>
-    <string name="main_net_check_interval">网络检查间隔时间(分钟)</string>
+    <string name="main_net_check_interval">正常网络检查间隔时间(分钟)</string>
     <string name="main_net_err_count">网络异常扫描次数</string>
     <string name="main_net_abnormal_example">例如：连接超时,连接失败,未准备好</string>
     <string name="main_net_default_address">默认访问地址</string>

@@ -7,7 +7,7 @@
     <string name="main_net_default_address">默认访问地址</string>
     <string name="main_net_delete">删除</string>
     <string name="main_net_add">添加</string>
-    <string name="main_save_re_enable">保存并重新启用</string>
+    <string name="main_save_re_enable">保存</string>
     <string name="main_off_service">关闭后台服务</string>
     <string name="main_on_service">开启后台服务</string>
     <string name="main_input_link_addr">请输入访问地址</string>

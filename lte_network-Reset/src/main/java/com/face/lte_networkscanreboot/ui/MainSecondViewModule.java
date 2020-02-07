@@ -323,8 +323,12 @@ public class MainSecondViewModule extends BaseViewModel {
                     "errScanCount--:" + errScanCountNum.get() + "\n\r" +
                     "errScanCountPosition--:" + errScanCountPosition.get() + "\n\r" +
                     "addr--:" + nowSelectAddrTv.get());
-            //保存参数后重新启动Service
-            RxBus.getDefault().post(new NetTimerParamEntity());
+
+            boolean isOpen=SPUtils.getInstance().getBoolean("isOpenService", true);
+            if(isOpen){
+                mContext.get().stopService(new Intent(mContext.get(),NetWorkSecondService.class));
+                openService();
+            }
             ToastUtils.showShort("已保存并启用");
         }
     });

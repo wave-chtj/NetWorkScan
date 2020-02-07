@@ -35,7 +35,7 @@
                 android:layout_marginLeft="5dp"
                 android:layout_toRightOf="@+id/lltop"
                 android:singleLine="true"
-                android:text="网络检测(重启)"
+                android:text="4G检测"
                 android:textColor="@color/white"
                 android:textSize="15sp"
                 android:textStyle="bold" />
@@ -58,6 +58,7 @@
                 android:layout_below="@id/tvRemarks"
                 android:layout_gravity="center"
                 android:layout_marginLeft="7dp"
+                android:visibility="gone"
                 android:layout_toRightOf="@+id/im_logo"
                 android:text="网络总异常：xx次"
                 android:textColor="@color/white"
@@ -94,11 +95,13 @@
                 android:layout_toRightOf="@+id/lltop"
                 android:layout_weight="1"
                 android:text="异常重启:xx"
+                android:visibility="gone"
                 android:textColor="@color/white"
                 android:textSize="10sp" />
 
             <TextView
                 android:id="@+id/tvExeuTime"
+                android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

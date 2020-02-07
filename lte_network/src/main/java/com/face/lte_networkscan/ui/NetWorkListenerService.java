@@ -7,6 +7,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.widget.RemoteViews;
@@ -35,7 +36,12 @@ import me.goldze.mvvmhabit.utils.SPUtils;
 /**
  * 网络检测 服务类
  * <p>
- * "/dev/lte_state" 所有4G复位都用这个
+ * "/dev/lte_state" 硬复位
+ * 开机3分钟后自启动
+ * 2分钟扫描网络一次。
+ * 如果出现4G断网的情况，那就进行5次扫描。也就是10分钟之后给模块复位。
+ * 4G恢复连网状态。从新开始判断。
+ * 不做重启主控的操作
  */
 public class NetWorkListenerService extends Service {
     public static final String TAG = NetWorkListenerService.class.getSimpleName();
@@ -45,17 +51,18 @@ public class NetWorkListenerService extends Service {
     private int netUserSetErrCount = 5;//用户设置 网络异常时需要扫描的次数
     private int now4GResetCount = 0;//4G网络模块重置的次数 临时变量 网络正常时重置为0
     private int max4GResetCount = 3;//重启设备的条件：当模块重置3次过后
-    private int netErrCycleTime = 2;//网络异常时的周期
-    private int cycleInterval=2;//按设定的周期检查网络
+    private int netErrCycleTime = 3;//网络异常时的周期
+    private int cycleInterval = 2;//按设定的周期检查网络
     private int maxRebootCount = 2;//最大重启的次数
     private int nowRecodeTime = 0;//当前记录的分钟
     private int defaultRebootTime = 30;//经过前两次的重启，启用第二个默认重启的时间
     private String urlAddr = "";//默认ping的地址
     private String commandToReset = "echo 1 > /dev/lte_state";
-    private String commandReboot = "don't nothing";
+    private String commandReboot = "don't nothing";//不执行重启
     private Context mContext;
     private Disposable sDisposable1;
     private Disposable sDisposable2;
+    private Disposable sDisposable3;
     //isRunningTask1 网络正常时检测的线程
     private boolean isRunningTask1 = false;
     //isRunningTask2 网络异常时检测的线程
@@ -119,7 +126,7 @@ public class NetWorkListenerService extends Service {
         mNetChangeObserver = new NetChangeObserver() {
             @Override
             public void onNetConnected(NetUtils.NetType type) {
-                NetworkUtil.NET_TYPE netStatus = NetworkUtil.getNetState(mContext, urlAddr);
+                /*NetworkUtil.NET_TYPE netStatus = NetworkUtil.getNetState(mContext, urlAddr);
                 if (netStatus == NetworkUtil.NET_TYPE.NET_CNNT_OK) {
                     //如果网络已连接 并且能够正常访问
                     closeTimerTask2();
@@ -135,16 +142,16 @@ public class NetWorkListenerService extends Service {
                         startTimerTask2();
                     }
                     closeTimerTask1();
-                }
+                }*/
             }
 
             @Override
             public void onNetDisConnect() {
-                if (!isRunningTask2) {
+                /*if (!isRunningTask2) {
                     KLog.e(TAG, "网络已断开 正在刷新线程状态");
                     startTimerTask2();
                 }
-                closeTimerTask1();
+                closeTimerTask1();*/
             }
         };
         //开启广播去监听 网络 改变事件
@@ -169,7 +176,7 @@ public class NetWorkListenerService extends Service {
         urlAddr = SPUtils.getInstance().getString(KeyValueConst.ADDR, NetworkUtil.url);
         KLog.e(TAG, "您当前设置的访问地址为：" + urlAddr);
         cycleInterval = SPUtils.getInstance().getInt(KeyValueConst.CYCLE_INTERVAL, 2);
-        KLog.e(TAG, "循环判断网络的间隔时间为：" + cycleInterval + " 分钟");
+        KLog.e(TAG, "正常时循环判断网络的间隔时间为：" + cycleInterval + " 分钟");
         netUserSetErrCount = SPUtils.getInstance().getInt(KeyValueConst.ERR_SCAN_COUNT, 5);
         KLog.e(TAG, "设置的异常扫描次数为:" + netUserSetErrCount + ",间隔时间为：" + netErrCycleTime + "分钟");
     }
@@ -250,7 +257,7 @@ public class NetWorkListenerService extends Service {
         KLog.e(TAG, "当前重启的次数为：" + (rebootCount + 1) + ",一般重启的次数为：" + maxRebootCount);
         ShellUtils.CommandResult rebootResult = ShellUtils.execCommand(commandReboot, true);
         KLog.e(TAG, rebootResult.result == 0 ? "重启成功" : "重启失败 errMeg=" + rebootResult.errorMsg);
-        if(rebootResult.result!=0){
+        if (rebootResult.result != 0) {
             SPUtils.getInstance().put(KeyValueConst.REBOOT_COUNT, 0);
             //小于等于两次的时候把设置为默认的30分钟
             SPUtils.getInstance().put(KeyValueConst.DYNAMIC_TIME_CARDINAL, 1);
@@ -278,7 +285,6 @@ public class NetWorkListenerService extends Service {
         });
     }
 
-
     /**
      * 网络正常时按设定的时间周期检查网络是否会出现异常
      */
@@ -292,7 +298,7 @@ public class NetWorkListenerService extends Service {
                     public void run() throws Exception {
                         isRunningTask1 = false;
                         KLog.e(TAG, "startTimerTask1 closed");
-                        open4GNetWork(0);
+                        startTimerTask2();
                     }
                 })
                 .subscribe(new Consumer<Long>() {
@@ -304,16 +310,17 @@ public class NetWorkListenerService extends Service {
                         //一般情况下 两个线程不会并行
                         //判断当前是否是手机网络连接  并且网络为4G
                         boolean isMobileConn = NetUtils.isNet4GConnted(mContext);
-                        if (isMobileConn) {//如果当前网络为4G
+                        NetUtils.NetType netType=NetUtils.getAPNType(mContext);
+                        if (isMobileConn||((netType!= NetUtils.NetType.WIFI)&&(netType!= NetUtils.NetType.ETH))) {//如果当前网络为4G
                             //获取当前网络状态
                             NetworkUtil.NET_TYPE netStatus = NetworkUtil.getNetState(mContext, urlAddr);
                             if (netStatus == NetworkUtil.NET_TYPE.NET_CNNT_OK) {//如果网络正常 能够正常访问网络
                                 KLog.e(TAG, "1能够正常访问网络 是否为4G:" + isMobileConn);
+                                KLog.e(TAG, "1网络正常了，这里需要重置一些数据！");
                                 netConnSuccess();
                             } else {
                                 KLog.e(TAG, "1当前网络状态：" + netStatus.name());
                                 closeTimerTask1();
-                                startTimerTask2();
                                 KLog.e(TAG, "1当前网络异常 执行下一步");
                             }
                         } else {
@@ -329,8 +336,9 @@ public class NetWorkListenerService extends Service {
      */
     public void open4GNetWork(int type) {
         ShellUtils.CommandResult networkBy4GOpenResult = ShellUtils.execCommand("svc data enable", true);
-        KLog.e(TAG, networkBy4GOpenResult.result == 0 ? "开启4G网络成功！command=svc data enable" : "开启4G网络失败！command=svc data enable");
-        KLog.e(TAG,"type="+type);
+        ShellUtils.CommandResult networkBy4GOpenResult2 = ShellUtils.execCommand("start ril-daemon", true);
+        //KLog.e(TAG, networkBy4GOpenResult.result == 0 ? "开启4G网络成功！command=svc data enable" : "开启4G网络失败！command=svc data enable");
+        KLog.e(TAG, "type=" + type);
     }
 
     /**
@@ -367,17 +375,19 @@ public class NetWorkListenerService extends Service {
                         SPUtils.getInstance().put(KeyValueConst.TOTAL_COUNT, totalCount + 1);
                         //判断网络是否为4G
                         boolean isMobileConn = NetUtils.isNet4GConnted(mContext);
-                        if (isMobileConn) {
+                        NetUtils.NetType netType=NetUtils.getAPNType(mContext);
+                        if (isMobileConn||((netType!= NetUtils.NetType.WIFI)&&(netType!= NetUtils.NetType.ETH))) {
                             NetworkUtil.NET_TYPE netStatus = NetworkUtil.getNetState(mContext, urlAddr);
                             KLog.e(TAG, "2当前网络状态：" + netStatus.name());
                             if (netStatus == NetworkUtil.NET_TYPE.NET_CNNT_OK) {
+                                KLog.e(TAG, "2网络正常了，这里需要重置一些数据！");
                                 netConnSuccess();
                                 //执行终止命令
                                 //继续执行第一个线程 检查网络是否会存在异常
                                 closeTimerTask2();
-                                startTimerTask1();
                                 KLog.e(TAG, "2任务需要终止>isRunningTask2:" + false + ",isRunningTask1:" + true);
                             } else {
+                                open4GNetWork(2);
                                 netConnFailed(nowRecodeTime);
                                 KLog.e(TAG, "2网络异常 记录次数，网络异常时检测总次数为：" + netUserSetErrCount + ",用于做4G模块复位前的判断,当前网络异常次数为：" + nowNetErrCount);
                                 //例如：
@@ -419,7 +429,6 @@ public class NetWorkListenerService extends Service {
      * @see #now4GResetCount 4G网络模块重置的次数 临时变量 网络正常时重置为0
      */
     public void netConnSuccess() {
-        KLog.e(TAG, "网络正常了，这里需要重置一些数据！");
         //清除记录的时间
         nowNetErrCount = 0;
         nowRecodeTime = 0;
@@ -459,7 +468,7 @@ public class NetWorkListenerService extends Service {
                 KLog.e(TAG, "网络检测的总次数为：" + totalCount + ",异常掉网的次数为：" + (errCount + 1));
                 SPUtils.getInstance().put(KeyValueConst.LAST_STATUS, false);
             } else {
-                KLog.e(TAG, "由于一直处在掉网情况，不做统计次数");
+                //KLog.e(TAG, "由于一直处在掉网情况，不做统计次数");
                 KLog.e(TAG, "网络检测的总次数为：" + totalCount + ",异常掉网的次数为：" + errCount);
             }
         }
@@ -507,7 +516,7 @@ public class NetWorkListenerService extends Service {
         closeAllTimerTask();
         //关闭通知
         if (manager != null) {
-            manager.cancel(11);
+            manager.cancel(13);
         }
     }
 
@@ -526,8 +535,9 @@ public class NetWorkListenerService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        netConnSuccess();
         if (manager != null) {
-            manager.cancel(12);
+            manager.cancel(13);
         }
         closeAllTimerTask();
     }

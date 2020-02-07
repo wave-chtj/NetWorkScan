@@ -14,6 +14,7 @@
         android:icon="@mipmap/network"
         android:roundIcon="@mipmap/network"
         android:label="@string/networkscanreboot_name"
+        android:persistent="true"
         tools:replace="label"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">

@@ -69,12 +69,13 @@ public class NetWorkScanAty extends BaseActivity<ActivityNetworkscanBinding, Net
 
         TestArrayAdapter testArrayAdapter1 = new TestArrayAdapter(NetWorkScanAty.this, Arrays.asList(cycleIntervalInfo));
         binding.spCycleInterval.setAdapter(testArrayAdapter1);
+
         TestArrayAdapter testArrayAdapter2 = new TestArrayAdapter(NetWorkScanAty.this, Arrays.asList(errScanCountInfo));
         binding.spErrScanCount.setAdapter(testArrayAdapter2);
 
 
-        int cycleIntervalPosition = SPUtils.getInstance().getInt("cycleIntervalPosition", 0);
-        int netErrCountPosition = SPUtils.getInstance().getInt("errScanCountPosition", 0);
+        int cycleIntervalPosition = SPUtils.getInstance().getInt("cycleIntervalPosition", 1);
+        int netErrCountPosition = SPUtils.getInstance().getInt("errScanCountPosition", 2);
         KLog.e("cycleIntervalPosition:" + cycleIntervalPosition + ",netErrCountPosition:" + netErrCountPosition);
 
         binding.spCycleInterval.setSelection(cycleIntervalPosition);
@@ -111,7 +112,7 @@ public class NetWorkScanAty extends BaseActivity<ActivityNetworkscanBinding, Net
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 viewModel.nowSelectAddrTv.set(viewModel.connadrList.get(position));
-                KLog.e(TAG, "选中了:" + viewModel.nowSelectAddrTv.get());
+                //KLog.e(TAG, "选中了:" + viewModel.nowSelectAddrTv.get());
             }
 
             @Override

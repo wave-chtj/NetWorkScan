@@ -1,5 +1,5 @@
 <resources>
-    <string name="networkscanreboot_name">网络检测</string>
+    <string name="networkscanreboot_name">4G检测</string>
     <string-array name="main_cycleInterval">
         <item>1</item>
         <item>2</item>
@@ -31,7 +31,7 @@
     <string name="main_net_default_address">Default access address</string>
     <string name="main_net_delete">Delete</string>
     <string name="main_net_add">Add</string>
-    <string name="main_save_re_enable">Save and re-enable</string>
+    <string name="main_save_re_enable">Save</string>
     <string name="main_off_service">Turn off background services</string>
     <string name="main_on_service">Turn on background services</string>
     <string name="main_input_link_addr">Please enter the link address</string>

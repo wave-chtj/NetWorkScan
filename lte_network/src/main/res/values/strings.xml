@@ -1,5 +1,5 @@
 <resources>
-    <string name="networkscan_name">网络检测</string>
+    <string name="networkscan_name">4G检测</string>
     <string-array name="main_cycleInterval">
         <item>1</item>
         <item>2</item>

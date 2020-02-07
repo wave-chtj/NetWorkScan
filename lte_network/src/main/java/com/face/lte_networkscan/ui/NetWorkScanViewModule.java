@@ -76,16 +76,6 @@ public class NetWorkScanViewModule extends BaseViewModel {
     @Override
     public void onCreate() {
         super.onCreate();
-        //后台保活手段之一
-        //设置为1像素后改变背景
-        Window window = mContext.get().getWindow();
-        window.setGravity(Gravity.LEFT | Gravity.TOP);
-        WindowManager.LayoutParams params = window.getAttributes();
-        params.x = 0;
-        params.y = 0;
-        params.height = 1;
-        params.width = 1;
-        window.setAttributes(params);
         openCloseTv.set(mContext.get().getResources().getString(R.string.main_off_service));
         initDaBase();//初始化数据库
         initDataInfo();//初始化一些基础数据
@@ -104,7 +94,6 @@ public class NetWorkScanViewModule extends BaseViewModel {
             //关闭服务
             closeService();
         }
-        finish();
     }
 
     /**

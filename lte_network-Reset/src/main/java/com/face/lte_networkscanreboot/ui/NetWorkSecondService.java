@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.chtj.base_iotutils.ShellUtils;
@@ -38,13 +39,12 @@ import me.goldze.mvvmhabit.utils.SPUtils;
  * ①网络正常时：一分钟执行一次检测
  * ②网络异常时：默认先执行一次检测，然后按周期三分钟执行
  * 软复位：
- *      如果到达了指定的网络异常次数{@link #nowNetErrCount},方法{@link #resetSoftware4G(boolean)}，执行软复位
+ * 如果到达了指定的网络异常次数{@link #nowNetErrCount},方法{@link #resetSoftware4G(boolean)}，执行软复位
  * 硬复位：
- *      如果到达了指定的软复位执行的次数{@link #max4GResetCount},方法{@link #resetHardWare4G()}，则执行硬复位
- *
- * 注：网络正常时重置所有状态
- * 注：网络正常后又异常则执行②
- *
+ * 如果到达了指定的软复位执行的次数{@link #max4GResetCount},方法{@link #resetHardWare4G()}，则执行硬复位
+ * 注1：网络正常时重置所有状态
+ * 注2：网络正常后又异常则执行②
+ * 注3：2点整的时候进行软复位一次，时间请设置24小时制
  */
 public class NetWorkSecondService extends Service {
     public static final String TAG = NetWorkSecondService.class.getSimpleName();
@@ -61,11 +61,11 @@ public class NetWorkSecondService extends Service {
     private String commandToReset =  "echo 1 > /dev/lte_state";//硬复位
     private String commandToReset2 = "setprop rild.simcom.reboot 1";//软复位
     private Context mContext;//上下文
-    private Disposable sDisposable1;//控制线程
-    private Disposable sDisposable2;//控制线程
-    private Disposable sDisposable3;//控制线程
-    private boolean isRunningTask1 = false; //网络正常时检测的线程
-    private boolean isRunningTask2 = false; //网络异常时检测的线程
+    private Disposable sDisposable1;//控制线程1
+    private Disposable sDisposable2;//控制线程2
+    private Disposable sDisposable3;//控制线程3
+    private boolean isRunningTask1 = false; //网络正常时检测的线程1
+    private boolean isRunningTask2 = false; //网络异常时检测的线程2
     //系统通知
     private NotificationManager manager = null;
     private Notification.Builder builder = null;
@@ -102,23 +102,7 @@ public class NetWorkSecondService extends Service {
     public void onCreate() {
         super.onCreate();
         mContext = this;
-        NetUtils.NetType netType = NetUtils.getAPNType(mContext);
-        int errCount = SPUtils.getInstance().getInt(KeyValueConst.ERR_COUNT, 0);
-        manager = (NotificationManager) mContext.getSystemService(NOTIFICATION_SERVICE);
-        builder = new Notification.Builder(mContext);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 1, new Intent(ACTION_CLOSE_ALL), PendingIntent.FLAG_UPDATE_CURRENT);
-        contentView = new RemoteViews(getApplication().getPackageName(), R.layout.activity_notification);
-        contentView.setTextViewText(R.id.tvNetType, "网络类型:" + netType.name());
-        contentView.setTextViewText(R.id.tvNextRebootTime, "异常重启时间:3m后重置" + max4GResetCount + "次后无效");
-        contentView.setTextViewText(R.id.tvNetErrCount, "网络总异常:" + errCount + "次");
-        contentView.setTextViewText(R.id.tvExeuTime, "已执行时间:" + nowRecodeTime + "m");
-        contentView.setOnClickPendingIntent(R.id.btnClose, pendingIntent);
-        builder.setContent(contentView);
-        builder.setSmallIcon(R.mipmap.network);  //小图标，在大图标右下角
-        builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.network)); //大图标，没有设置时小图标就是大图标
-        builder.setOngoing(true);//滑动不能清除
-        builder.setAutoCancel(false);   //点击的时候消失
-        manager.notify(12, builder.build());  //参数一为ID，用来区分不同APP的Notification
+        KLog.e(TAG,"onCteate。。");
 
         // 网络改变的一个回调类
         mNetChangeObserver = new NetChangeObserver() {
@@ -192,12 +176,33 @@ public class NetWorkSecondService extends Service {
      * 初始化一些基本参数
      */
     private void initSomeParam() {
+        NetUtils.NetType netType = NetUtils.getAPNType(mContext);
+        int errCount = SPUtils.getInstance().getInt(KeyValueConst.ERR_COUNT, 0);
+        manager = (NotificationManager) mContext.getSystemService(NOTIFICATION_SERVICE);
+        builder = new Notification.Builder(mContext);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 1, new Intent(ACTION_CLOSE_ALL), PendingIntent.FLAG_UPDATE_CURRENT);
+        contentView = new RemoteViews(getApplication().getPackageName(), R.layout.activity_notification);
+        contentView.setTextViewText(R.id.tvNetType, "网络类型:" + netType.name());
+        contentView.setTextViewText(R.id.tvNextRebootTime, "异常重启时间:3m后重置" + max4GResetCount + "次后无效");
+        contentView.setTextViewText(R.id.tvNetErrCount, "网络总异常:" + errCount + "次");
+        contentView.setTextViewText(R.id.tvExeuTime, "已执行时间:" + nowRecodeTime + "m");
+        contentView.setOnClickPendingIntent(R.id.btnClose, pendingIntent);
+        builder.setContent(contentView);
+        builder.setSmallIcon(R.mipmap.network);  //小图标，在大图标右下角
+        builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.network)); //大图标，没有设置时小图标就是大图标
+        builder.setOngoing(true);//滑动不能清除
+        builder.setAutoCancel(false);   //点击的时候消失
+
+
         urlAddr = SPUtils.getInstance().getString(KeyValueConst.ADDR, NetworkUtil.url);
         KLog.e(TAG, "您当前设置的访问地址为：" + urlAddr);
         cycleInterval = SPUtils.getInstance().getInt(KeyValueConst.CYCLE_INTERVAL, 3);
         KLog.e(TAG, "循环判断网络的间隔时间为：" + cycleInterval + " 分钟");
         netUserSetErrCount = SPUtils.getInstance().getInt(KeyValueConst.ERR_SCAN_COUNT, 1);
         KLog.e(TAG, "设置的异常扫描次数为:" + netUserSetErrCount);
+
+        contentView.setTextViewText(R.id.tvRemarks, "注:网络异常时,每"+cycleInterval+"分钟执行一次重置加检测;正常后每分钟执行检测！");
+        manager.notify(12, builder.build());  //参数一为ID，用来区分不同APP的Notification
     }
 
     /**
