@@ -12,12 +12,12 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.chtj.base_iotutils.ShellUtils;
 import com.face.lte_networkscanreboot.R;
 import com.face.lte_networkscanreboot.entity.NetTimerParamEntity;
 import com.face.lte_networkscanreboot.entity.ThreadNotice;
 import com.face.lte_networkscanreboot.entity.TotalEntity;
 import com.face.lte_networkscanreboot.utils.KeyValueConst;
+import com.face_chtj.base_iotutils.ShellUtils;
 
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
@@ -193,7 +193,6 @@ public class NetWorkSecondService extends Service {
         builder.setOngoing(true);//滑动不能清除
         builder.setAutoCancel(false);   //点击的时候消失
 
-
         urlAddr = SPUtils.getInstance().getString(KeyValueConst.ADDR, NetworkUtil.url);
         KLog.e(TAG, "您当前设置的访问地址为：" + urlAddr);
         cycleInterval = SPUtils.getInstance().getInt(KeyValueConst.CYCLE_INTERVAL, 3);
@@ -349,7 +348,7 @@ public class NetWorkSecondService extends Service {
                                 KLog.e(TAG, "1当前网络状态：" + netStatus.name());
                                 KLog.e(TAG, "1当前网络异常 执行下一步");
                                 closeTimerTask1();
-                                open4GNetWork(0);
+                                open4GNetWork();
                                 startTimerTask2();
                             }
                         } else {
@@ -362,12 +361,8 @@ public class NetWorkSecondService extends Service {
     /**
      * 开启4G网络
      */
-    public void open4GNetWork(int type) {
-        ShellUtils.CommandResult networkBy4GOpenResult = ShellUtils.execCommand("svc data enable", true);
-        //KLog.e(TAG, networkBy4GOpenResult.result == 0 ? "开启4G网络成功！command=svc data enable" : "开启4G网络失败！command=svc data enable");
-        ShellUtils.CommandResult networkBy4GOpenResult2 = ShellUtils.execCommand("start ril-daemon", true);
-        //KLog.e(TAG, networkBy4GOpenResult2.result == 0 ? "开启4G网络成功！start ril-daemon" : "开启4G网络失败！start ril-daemon");
-        //KLog.e(TAG, "type=" + type);
+    public void open4GNetWork() {
+        ShellUtils.CommandResult networkBy4GOpenResult2 = ShellUtils.execCommand(new String[]{"svc data enable","start ril-daemon"}, true);
     }
 
     /**
@@ -407,6 +402,7 @@ public class NetWorkSecondService extends Service {
                                 startTimerTask1(0);
                             } else {
                                 netConnFailed(nowRecodeTime);
+                                open4GNetWork();
                                 //KLog.e(TAG, "2网络异常 网络异常复位前需要达到的异常次数：" + netUserSetErrCount + ",用于做4G模块复位前的判断,当前网络异常次数为：" + nowNetErrCount);
                                 if (nowNetErrCount == netUserSetErrCount) {
                                     //KLog.e(TAG, "2网络无法恢复！达到了指定的异常网络次数:" + netUserSetErrCount + "次");

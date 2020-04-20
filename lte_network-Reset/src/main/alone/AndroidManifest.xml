@@ -9,7 +9,7 @@
     <!--开机启动-->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <application
-        android:name="com.face.base.debug.DebugApplication"
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/network"
         android:roundIcon="@mipmap/network"

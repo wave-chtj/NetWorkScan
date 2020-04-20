@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.face.lte_networkscan">
+    android:sharedUserId="android.uid.system"
+    package="com.face.networkscan">
+    <!--android:sharedUserId="android.uid.system"-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -9,7 +11,7 @@
     <!--开机启动-->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"></uses-permission>
     <application
-        android:name=".MyApplication"
+        android:name="com.face.networkscan.MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/network"
         android:roundIcon="@mipmap/network"
@@ -18,19 +20,19 @@
         android:persistent="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.face.lte_networkscan.debug.DebugActivity">
+        <activity android:name="com.face.networkscan.debug.DebugActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.face.lte_networkscan.ui.NetWorkScanAty"></activity>
+        <activity android:name="com.face.networkscan.ui.NetWorkScanAty"></activity>
         <meta-data
             android:name="design_width_in_dp"
             android:value="360"/>
-        <service android:name="com.face.lte_networkscan.ui.NetWorkListenerService"/>
+        <service android:name="com.face.networkscan.ui.NetWorkListenerService"/>
         <receiver
-            android:name="com.face.lte_networkscan.receiver.MyReceiver"
+            android:name="com.face.networkscan.receiver.MyReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter android:priority="1000">

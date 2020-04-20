@@ -3,8 +3,8 @@ package com.face.base.debug;
 import android.content.IntentFilter;
 import android.os.Build;
 
-import com.chtj.base_iotutils.keepservice.BaseIotUtils;
 import com.face.base.config.ModuleLifecycleConfig;
+import com.face_chtj.base_iotutils.keeplive.BaseIotUtils;
 
 import me.goldze.mvvmhabit.base.BaseApplication;
 import me.goldze.mvvmhabit.netbus.NetStateReceiver;

@@ -1,4 +1,4 @@
-package com.face.lte_networkscanreboot.ui;
+package com.face.networkscan.ui;
 
 import android.app.ActionBar;
 import android.app.ActivityManager;
@@ -22,15 +22,14 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.face.base.db.DbHelper;
-import com.face.lte_networkscanreboot.R;
-import com.face.lte_networkscanreboot.entity.ChangeDataEntity;
-import com.face.lte_networkscanreboot.entity.NetTimerParamEntity;
-import com.face.lte_networkscanreboot.entity.ThreadNotice;
-import com.face.lte_networkscanreboot.entity.TotalEntity;
-import com.face.lte_networkscanreboot.utils.DateUtil;
-import com.face.lte_networkscanreboot.utils.DevicesUtils;
-import com.face.lte_networkscanreboot.utils.KeyValueConst;
-import com.face.lte_networkscanreboot.utils.SystemInfoUtil;
+import com.face.networkscan.R;
+import com.face.networkscan.entity.ChangeDataEntity;
+import com.face.networkscan.entity.ThreadNotice;
+import com.face.networkscan.entity.TotalEntity;
+import com.face.networkscan.utils.DateUtil;
+import com.face.networkscan.utils.DevicesUtils;
+import com.face.networkscan.utils.KeyValueConst;
+import com.face.networkscan.utils.SystemInfoUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -47,11 +46,11 @@ import me.goldze.mvvmhabit.utils.KLog;
 import me.goldze.mvvmhabit.utils.SPUtils;
 import me.goldze.mvvmhabit.utils.ToastUtils;
 
-public class MainSecondViewModule extends BaseViewModel {
-    private static final String TAG = MainSecondViewModule.class.getSimpleName();
+public class NetWorkScanViewModule extends BaseViewModel {
+    private static final String TAG = NetWorkScanViewModule.class.getSimpleName();
     public ObservableField<AppCompatActivity> mContext = new ObservableField<>();//上下文
-    public ObservableInt cycleIntervalNum = new ObservableInt(1);//网络异常检查间隔的时间 分钟
-    public ObservableInt errScanCountNum = new ObservableInt(1);//异常状态扫描的次数
+    public ObservableInt cycleIntervalNum = new ObservableInt(1);//网络检查间隔的时间 分钟
+    public ObservableInt errScanCountNum = new ObservableInt(2);//异常状态扫描的次数
     public ObservableInt cycleIntervalPosition = new ObservableInt(0);//网络检查间隔时间 对应的下标
     public ObservableInt errScanCountPosition = new ObservableInt(0);//网络异常判断次数   对应的下标
     public ObservableField<String> openCloseTv = new ObservableField<>();//当前btn状态为开启后台服务|关闭后台服务
@@ -66,7 +65,7 @@ public class MainSecondViewModule extends BaseViewModel {
     DbHelper dbHelper = null;//数据库服务类
     PopupWindow popupWindow;//弹窗  用于新增机型|访问地址
 
-    public MainSecondViewModule(@NonNull Application application) {
+    public NetWorkScanViewModule(@NonNull Application application) {
         super(application);
     }
 
@@ -81,17 +80,17 @@ public class MainSecondViewModule extends BaseViewModel {
         // 根据isOpenService判断是否需要开启Service服务
         // 首次进来 默认情况下 需要开启
         // 第二次启动时按照 isOpenService 对应的value值进行判断
-       /* boolean isOpenService = SPUtils.getInstance().getBoolean("isOpenService", true);
+        /*boolean isOpenService = SPUtils.getInstance().getBoolean("isOpenService", true);
         if (isOpenService) {
             //1关闭服务
-            mContext.get().stopService(new Intent(mContext.get(),NetWorkSecondService.class));
+            mContext.get().stopService(new Intent(mContext.get(), NetWorkListenerService.class));
             //2重新启动Service
             openService();
         } else {
             //关闭服务
             closeService();
         }*/
-        if (!isWorked("com.face.lte_networkscanreboot.ui.NetWorkSecondService")) {
+        if (!isWorked("com.face.lte_networkscan.ui.NetWorkListenerService")) {
             //未启动
             openService();
             Log.e(TAG, "服务未启动！！,正在启动中....");
@@ -121,6 +120,7 @@ public class MainSecondViewModule extends BaseViewModel {
         dbHelper = new DbHelper(mContext.get(), DbHelper.DB_NAME_CONN_READER_TYPE, null, 2);
         dbHelper.inItDb();
     }
+
 
     /**
      * 初始化一些基础数据
@@ -154,7 +154,7 @@ public class MainSecondViewModule extends BaseViewModel {
                 modelTypeName.set(getModelTypeName);
             }
         }
-        KLog.e(TAG, "添加一些默认访问地址。");
+        KLog.d(TAG, "添加一些默认访问地址。");
         //添加一些访问地址
         //该地址第一次加载会将DevicesUtils.getAddrList()数据全部添加
         //第一次之后则会查询是否存在重复的地址 再执行添加操作
@@ -175,10 +175,8 @@ public class MainSecondViewModule extends BaseViewModel {
             //需要去加载符合设备对应机型的选项 设置为默认
             //首次加载 设置默认的访问访问地址
             SPUtils.getInstance().put(KeyValueConst.ADDR, "www.baidu.com");
-            SPUtils.getInstance().put(KeyValueConst.CYCLE_INTERVAL, 3);
             KLog.e(TAG, "首次加载，默认设置一个访问地址：223.5.5.5,手动选择后失效");
             SPUtils.getInstance().put("isFirst", false);
-
         }
     }
 
@@ -188,7 +186,7 @@ public class MainSecondViewModule extends BaseViewModel {
      */
     public void queryLinkAddress() {
         int defaultPositon = 0;
-        KLog.e(TAG, "刷新Spinner Network check interval");
+        KLog.d(TAG, "刷新Spinner Network check interval");
         String postionAddrtv = SPUtils.getInstance().getString(KeyValueConst.ADDR, "");
         connadrList = dbHelper.getAddrList();
         if (connadrList != null && connadrList.size() > 0) {
@@ -200,7 +198,7 @@ public class MainSecondViewModule extends BaseViewModel {
                 }
             }
         }
-        KLog.e(TAG, "数据库一共存在的访问地址数量:" + connadrList.size());
+        KLog.d(TAG, "数据库一共存在的访问地址数量:" + connadrList.size());
         RxBus.getDefault().post(new ChangeDataEntity(-1, defaultPositon, connadrList, ChangeDataEntity.DATA_TYPE.TYPE_CONN_ADDR));
     }
 
@@ -252,7 +250,7 @@ public class MainSecondViewModule extends BaseViewModel {
             //是否允许点击外部
             popupWindow.setOutsideTouchable(true);
             //显示PopupWindow
-            View rootview = LayoutInflater.from(mContext.get()).inflate(R.layout.activity_main_second, null);
+            View rootview = LayoutInflater.from(mContext.get()).inflate(R.layout.activity_networkscan, null);
             popupWindow.showAtLocation(rootview, Gravity.BOTTOM, 0, 0);
         }
     });
@@ -297,10 +295,10 @@ public class MainSecondViewModule extends BaseViewModel {
     public void openService() {
         //下次启动时候需要自动重启
         SPUtils.getInstance().put("isOpenService", true);
-        KLog.e(TAG, "开启了服务>当前的状态为：" + SPUtils.getInstance().getBoolean("isOpenService", true));
+        //KLog.e(TAG, "开启了服务>当前的状态为：" + SPUtils.getInstance().getBoolean("isOpenService", true));
         openCloseTv.set(mContext.get().getResources().getString(R.string.main_off_service));
         //开启服务
-        mContext.get().startService(new Intent(mContext.get(), NetWorkSecondService.class));
+        mContext.get().startService(new Intent(mContext.get(), NetWorkListenerService.class));
     }
 
     //关闭网络检测服务
@@ -311,10 +309,10 @@ public class MainSecondViewModule extends BaseViewModel {
         RxBus.getDefault().post(new ThreadNotice());
         //下次启动时候只能手动启动
         SPUtils.getInstance().put("isOpenService", false);
-        KLog.e(TAG, "关闭了服务>当前的状态为：" + SPUtils.getInstance().getBoolean("isOpenService", true));
+        //KLog.e(TAG, "关闭了服务>当前的状态为：" + SPUtils.getInstance().getBoolean("isOpenService", true));
         openCloseTv.set(mContext.get().getResources().getString(R.string.main_on_service));
         //关闭服务
-        mContext.get().stopService(new Intent(mContext.get(),NetWorkSecondService.class));
+        mContext.get().stopService(new Intent(mContext.get(), NetWorkListenerService.class));
         ToastUtils.showShort("已关闭网络检测服务");
     }
 
@@ -322,20 +320,11 @@ public class MainSecondViewModule extends BaseViewModel {
     public BindingCommand closeServiceClick = new BindingCommand(new BindingAction() {
         @Override
         public void call() {
-            //默认情况下Service需要自动打开
-            /*boolean isOpenService = SPUtils.getInstance().getBoolean("isOpenService", true);
-            if (isOpenService) {
-                closeService();
-            } else {
-                openService();
-            }*/
-            if (!isWorked("com.face.lte_networkscanreboot.ui.NetWorkSecondService")) {
+            if (!isWorked("com.face.networkscan.ui.NetWorkListenerService")) {
                 //未启动
                 openService();
-                Log.e(TAG, "服务未启动！！,正在启动中....");
             } else {
                 //已启动
-                Log.e(TAG, "服务已经启动了！！");
                 closeService();
             }
         }
@@ -350,18 +339,14 @@ public class MainSecondViewModule extends BaseViewModel {
             SPUtils.getInstance().put(KeyValueConst.ERR_SCAN_COUNT, errScanCountNum.get());
             SPUtils.getInstance().put("errScanCountPosition", errScanCountPosition.get());
             SPUtils.getInstance().put(KeyValueConst.ADDR, nowSelectAddrTv.get());
-            KLog.e(TAG, "\n\r" +
+            KLog.d(TAG, "\n\r" +
                     "cycleInterval--:" + cycleIntervalNum.get() + "\n\r" +
                     "cycleIntervalPosition--:" + cycleIntervalPosition.get() + "\n\r" +
                     "errScanCount--:" + errScanCountNum.get() + "\n\r" +
                     "errScanCountPosition--:" + errScanCountPosition.get() + "\n\r" +
                     "addr--:" + nowSelectAddrTv.get());
-
-            /*boolean isOpen=SPUtils.getInstance().getBoolean("isOpenService", true);
-            if(isOpen){
-                mContext.get().stopService(new Intent(mContext.get(),NetWorkSecondService.class));
-                openService();
-            }*/
+            //保存参数后重新启动Service
+            /*RxBus.getDefault().post(new NetTimerParamEntity());*/
             openService();
             ToastUtils.showShort("已保存并启用");
         }
@@ -377,7 +362,7 @@ public class MainSecondViewModule extends BaseViewModel {
                     super.run();
                     try{
                         /*RxBus.getDefault().post(new ThreadNotice());
-                        mContext.get().stopService(new Intent(mContext.get(),NetWorkSecondService.class));*/
+                        mContext.get().stopService(new Intent(mContext.get(), NetWorkListenerService.class));*/
                         closeService();
                         SPUtils.getInstance().put(KeyValueConst.TOTAL_COUNT, 0);
                         SPUtils.getInstance().put(KeyValueConst.ERR_COUNT, 0);
@@ -392,8 +377,7 @@ public class MainSecondViewModule extends BaseViewModel {
                         exeuTimeTv.set("已执行时间：加载中...");
                         errCountTv.set("异常次数：0次");
                         Thread.sleep(1500);
-                        /*mContext.get().startService(new Intent(mContext.get(),NetWorkSecondService.class));*/
-                        openService();
+                        mContext.get().startService(new Intent(mContext.get(), NetWorkListenerService.class));
                     }catch(Exception e){
                         e.printStackTrace();
                         Log.e(TAG,"errMeg:"+e.getMessage());
@@ -409,7 +393,7 @@ public class MainSecondViewModule extends BaseViewModel {
         RxBus.getDefault().toObservable(TotalEntity.class).subscribe(new Consumer<TotalEntity>() {
             @Override
             public void accept(TotalEntity totalEntity) throws Exception {
-                KLog.e(TAG, "返回了数据");
+                KLog.d(TAG, "返回了数据");
                 //totalCountTv.set("检测总次数：" + SPUtils.getInstance().getInt(KeyValueConst.TOTAL_COUNT, 0) + "次");
                 errCountTv.set("异常次数：" + SPUtils.getInstance().getInt(KeyValueConst.ERR_COUNT, 0) + "次");
                 getExeuTime();
@@ -446,5 +430,10 @@ public class MainSecondViewModule extends BaseViewModel {
             e.printStackTrace();
             Log.e(TAG,"errMeg:"+e.getMessage());
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 }

@@ -21,7 +21,7 @@
 
         <!--android:theme="@style/AppTheme.Start"-->
         <activity
-            android:name="com.face.lte_networkscan.ui.SplashActivity">
+            android:name="com.face.networkscan.ui.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -12,12 +12,10 @@ import android.os.IBinder;
 import android.util.Log;
 import android.net.NetworkUtils;
 import android.widget.RemoteViews;
-
-import com.chtj.base_iotutils.ShellUtils;
-import com.chtj.base_iotutils.keepservice.AbsWorkService;
-import com.chtj.base_iotutils.keepservice.BaseIotUtils;
 import com.face.ethlinstener.R;
 import com.face.ethlinstener.ui.activity.EthLinstenerActivity;
+import com.face_chtj.base_iotutils.keeplive.AbsWorkService;
+import com.face_chtj.base_iotutils.keeplive.BaseIotUtils;
 
 import java.lang.reflect.Constructor;
 import java.net.Inet4Address;

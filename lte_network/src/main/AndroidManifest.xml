@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.face.lte_networkscan">
+    package="com.face.networkscan">
     <application>
         <!--在自己组件中注册Activity-->
         <activity android:name=".ui.NetWorkScanAty"/>

@@ -6,8 +6,8 @@ import android.databinding.ObservableInt;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.chtj.base_iotutils.keepservice.BaseIotUtils;
 import com.face.ethlinstener.ui.service.EthLinstenerService;
+import com.face_chtj.base_iotutils.keeplive.BaseIotUtils;
 
 import me.goldze.mvvmhabit.base.BaseViewModel;
 import me.goldze.mvvmhabit.binding.command.BindingAction;

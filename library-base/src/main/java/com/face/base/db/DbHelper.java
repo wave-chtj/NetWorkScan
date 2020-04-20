@@ -225,7 +225,7 @@ public class DbHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
                 String addrContent = cursor.getString(cursor.getColumnIndex("addr"));
-                KLog.e(TAG, "获取一些内置存储访问地址-->list value:" + addrContent);
+                KLog.d(TAG, "获取一些内置存储访问地址-->list value:" + addrContent);
                 addrList.add(addrContent);
                 cursor.moveToNext();
             }

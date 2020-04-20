@@ -8,13 +8,13 @@ import android.widget.AdapterView;
 import com.alibaba.android.arouter.facade.annotation.Autowired;
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.alibaba.android.arouter.launcher.ARouter;
-import com.chtj.base_iotutils.keepservice.BaseIotUtils;
 import com.face.base.router.RouterActivityPath;
 import com.face.ethlinstener.BR;
 import com.face.ethlinstener.R;
 import com.face.ethlinstener.databinding.ActivityEthlinstenerBinding;
 import com.face.ethlinstener.ui.service.EthLinstenerService;
 import com.face.ethlinstener.ui.viewmodel.EthLinstenerViewModel;
+import com.face_chtj.base_iotutils.keeplive.BaseIotUtils;
 
 import java.util.Arrays;
 
