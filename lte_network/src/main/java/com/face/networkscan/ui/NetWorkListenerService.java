@@ -17,6 +17,7 @@ import com.face.networkscan.entity.TotalEntity;
 import com.face.networkscan.utils.KeyValueConst;
 import com.face_chtj.base_iotutils.ShellUtils;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
@@ -51,7 +52,8 @@ public class NetWorkListenerService extends Service {
     private int netErrCycleTime = 3;//网络异常时的周期
     private int cycleInterval = 2;//按设定的周期检查网络
     private String urlAddr = "";//默认ping的地址
-    private String commandToReset = "echo 1 > /dev/lte_state";//硬复位
+    private String commandToReset1 = "echo 1 > /dev/lte_state";//硬复位
+    private String commandToReset2 = "echo 0 > /sys/devices/platform/imx6q_sim/sim_sysfs/state";//硬复位
     private String commandReboot = "reboot";//不执行重启
     private Context mContext;
     private Disposable sDisposable1;
@@ -131,8 +133,19 @@ public class NetWorkListenerService extends Service {
      * 重置4G模块
      */
     private void reset4G() {
-        ShellUtils.CommandResult resetCommand = ShellUtils.execCommand(commandToReset, false);
-        KLog.e(TAG, resetCommand.result == 0 ? "复位成功" : "复位失败 errMeg=" + resetCommand.errorMsg);
+        //软链接
+        File file1=new File("/dev/lte_state");
+        //早期模块中的链接
+        File file2=new File("/sys/devices/platform/imx6q_sim/sim_sysfs/state");
+        if(file1.exists()&&file1.isFile()){
+            ShellUtils.CommandResult resetCommand1 = ShellUtils.execCommand(commandToReset1, false);
+            KLog.e(TAG, resetCommand1.result == 0 ? "resetCommand1 复位成功" : "resetCommand1 复位失败 errMeg=" + resetCommand1.errorMsg);
+        }else if(file2.exists()&&file2.isFile()){
+            ShellUtils.CommandResult resetCommand2 = ShellUtils.execCommand(commandToReset2, false);
+            KLog.e(TAG, resetCommand2.result == 0 ? "resetCommand2 复位成功" : "resetCommand2 复位失败 errMeg=" + resetCommand2.errorMsg);
+        }else{
+            KLog.e(TAG, "未成功执行4G模块复位 当前未找到路径 /dev/lte_state | /sys/devices/platform/imx6q_sim/sim_sysfs/state");
+        }
         //4G模块复位后就+1
         now4GResetCount++;
         KLog.e(TAG, "当前4G模块已重置的次数为→now4GResetCount=" + now4GResetCount);
@@ -227,7 +240,7 @@ public class NetWorkListenerService extends Service {
                             NetworkUtil.NET_TYPE netStatus = NetworkUtil.getNetState(mContext, urlAddr);
                             KLog.e(TAG, "2当前网络状态：" + netStatus.name());
                             if (netStatus == NetworkUtil.NET_TYPE.NET_CNNT_OK) {
-                                KLog.e(TAG, "2网络正常了，这里需要重置一些数据！");
+                                KLog.e(TAG, "2 网络正常了，这里需要重置一些数据！");
                                 netConnSuccess();
                                 closeTimerTask2();
                             } else {

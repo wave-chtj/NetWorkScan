@@ -7,9 +7,6 @@ import android.util.Log;
 
 import com.face.ethlinstener.ui.service.EthLinstenerService;
 import com.face_chtj.base_iotutils.keeplive.BaseIotUtils;
-
-import me.goldze.mvvmhabit.utils.KLog;
-
 /**
  * 开机启动
  */

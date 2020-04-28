@@ -1,38 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:binding="http://schemas.android.com/apk/res-auto">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:binding="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical">
 
-    <data>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="*选择以太网检查的周期" />
 
-        <variable
-            name="viewModel"
-            type="com.face.ethlinstener.ui.viewmodel.EthLinstenerViewModel" />
-    </data>
-
-    <LinearLayout
+    <Spinner
+        android:id="@+id/sp_cycle_interval"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:layout_height="25dp"
+        android:layout_margin="15dp"
+        android:entries="@array/ethlinstener_cycleInterval" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="*选择以太网检查的周期" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="保存并启用服务"
+        android:onClick="startServiceClick" />
 
-        <Spinner
-            android:id="@+id/sp_cycle_interval"
-            android:layout_width="match_parent"
-            android:layout_height="25dp"
-            android:layout_margin="15dp"
-            android:entries="@array/ethlinstener_cycleInterval" />
+</LinearLayout>
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="保存并启用服务"
-            binding:onClickCommand="@{viewModel.startServiceClick}" />
-
-    </LinearLayout>
-
-</layout>

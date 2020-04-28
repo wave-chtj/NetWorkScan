@@ -1,15 +1,44 @@
-apply from: "../module.build.gradle"
+//作为独立App应用运行
+apply plugin: 'com.android.application'
 android {
+    signingConfigs {
+        debug {
+            storeFile file('D:\\face.jks')
+            storePassword 'facefuture'
+            keyAlias = 'key0'
+            keyPassword 'facefuture'
+        }
+        release {
+            storeFile file('D:\\face.jks')
+            storePassword 'facefuture'
+            keyAlias = 'key0'
+            keyPassword 'facefuture'
+        }
+    }
+    compileSdkVersion rootProject.ext.android.compileSdkVersion
     defaultConfig {
+        minSdkVersion rootProject.ext.android.minSdkVersion
+        targetSdkVersion rootProject.ext.android.targetSdkVersion
         versionCode rootProject.ext.android.versionCode_network_eth_enable
         versionName rootProject.ext.android.versionName_network_eth_enable
         //如果是独立模块，则使用当前组件的包名
-        if (isBuildModule.toBoolean()) {
-            applicationId "com.face.ethlinstener"
+        applicationId "com.face.ethlinstener"
+        //作为独立App应用运行
+        multiDexEnabled true
+    }
+    buildTypes {
+        debug {
+            minifyEnabled false
+            signingConfig signingConfigs.debug
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    //统一资源前缀，规范资源引用
-    resourcePrefix "ethlinstener_"
+
     lintOptions {
         checkReleaseBuilds false
         // Or, if you prefer, you can continue to check for errors in release builds,
@@ -20,10 +49,8 @@ android {
 }
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    //组件依赖基础库
-    api project(':library-base')
-    //组件中依赖阿里路由编译框架
-    annotationProcessor rootProject.ext.dependencies["arouter-compiler"]
     api rootProject.ext.dependencies["multiDexEnabled"]
     implementation files('libs/classes.jar')
+    implementation rootProject.ext.support["appcompat-v7"]
+    implementation rootProject.ext.dependencies["base_iotutils"]
 }

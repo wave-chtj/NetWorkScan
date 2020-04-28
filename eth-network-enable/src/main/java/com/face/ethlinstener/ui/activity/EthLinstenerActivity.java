@@ -1,66 +1,43 @@
 package com.face.ethlinstener.ui.activity;
-
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
-
-import com.alibaba.android.arouter.facade.annotation.Autowired;
-import com.alibaba.android.arouter.facade.annotation.Route;
-import com.alibaba.android.arouter.launcher.ARouter;
-import com.face.base.router.RouterActivityPath;
-import com.face.ethlinstener.BR;
+import android.widget.Spinner;
 import com.face.ethlinstener.R;
-import com.face.ethlinstener.databinding.ActivityEthlinstenerBinding;
 import com.face.ethlinstener.ui.service.EthLinstenerService;
-import com.face.ethlinstener.ui.viewmodel.EthLinstenerViewModel;
+import com.face_chtj.base_iotutils.SPUtils;
 import com.face_chtj.base_iotutils.keeplive.BaseIotUtils;
-
 import java.util.Arrays;
-
-import me.goldze.mvvmhabit.base.BaseActivity;
-import me.goldze.mvvmhabit.utils.SPUtils;
-import me.goldze.mvvmhabit.utils.Utils;
 
 /**
  * Created by goldze on 2018/6/21.
  */
-@Route(path = RouterActivityPath.User.PAGER_USERDETAIL)
-public class EthLinstenerActivity extends BaseActivity<ActivityEthlinstenerBinding, EthLinstenerViewModel> {
-    String[] cycleIntervalInfo = Utils.getContext().getResources().getStringArray(R.array.ethlinstener_cycleInterval);//网络检测间隔时间
-
+public class EthLinstenerActivity extends AppCompatActivity {
+    String[] cycleIntervalInfo = BaseIotUtils.getContext().getResources().getStringArray(R.array.ethlinstener_cycleInterval);//网络检测间隔时间
+    int cycleIntervalPosition=0;
+    int cycleIntervalNum=1;
+    Spinner spCycleInterval;
     @Override
-    public void initParam() {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_ethlinstener);
+        spCycleInterval=findViewById(R.id.sp_cycle_interval);
+        initData();
     }
-
-    @Override
-    public int initContentView(Bundle savedInstanceState) {
-        return R.layout.activity_ethlinstener;
-    }
-
-    @Override
-    public int initVariableId() {
-        return BR.viewModel;
-    }
-
-    @Override
-    public void initData() {
-    }
-
-    @Override
-    public void initViewObservable() {
-        super.initViewObservable();
+    public void initData(){
         TestArrayAdapter testArrayAdapter1 = new TestArrayAdapter(this, Arrays.asList(cycleIntervalInfo));
-        binding.spCycleInterval.setAdapter(testArrayAdapter1);
-        int cycleIntervalPosition = SPUtils.getInstance().getInt("cycleIntervalPosition", 0);
-        binding.spCycleInterval.setSelection(cycleIntervalPosition);
+        spCycleInterval.setAdapter(testArrayAdapter1);
+        cycleIntervalPosition = SPUtils.getInt("cycleIntervalPosition", 0);
+        spCycleInterval.setSelection(cycleIntervalPosition);
 
         //循环间隔选择
-        binding.spCycleInterval.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spCycleInterval.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                viewModel.cycleIntervalNum.set(Integer.parseInt(cycleIntervalInfo[position]));
-                viewModel.cycleIntervalPosition.set(position);
+                cycleIntervalNum=Integer.parseInt(cycleIntervalInfo[position]);
+                cycleIntervalPosition=position;
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -74,5 +51,16 @@ public class EthLinstenerActivity extends BaseActivity<ActivityEthlinstenerBindi
         BaseIotUtils.startServiceMayBind(EthLinstenerService.class);
 
     }
+
+    public void startServiceClick(View view){
+        SPUtils.putInt("cycleInterval", cycleIntervalNum);
+        SPUtils.putInt("cycleIntervalPosition", cycleIntervalPosition);
+        EthLinstenerService.stopService();
+        //①初始化后台保活Service
+        BaseIotUtils.initSerice(EthLinstenerService.class, BaseIotUtils.DEFAULT_WAKE_UP_INTERVAL);
+        EthLinstenerService.sShouldStopService = false;
+        BaseIotUtils.startServiceMayBind(EthLinstenerService.class);
+    }
+
 }
 

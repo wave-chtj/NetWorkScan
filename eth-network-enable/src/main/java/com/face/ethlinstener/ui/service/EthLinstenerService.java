@@ -14,6 +14,8 @@ import android.net.NetworkUtils;
 import android.widget.RemoteViews;
 import com.face.ethlinstener.R;
 import com.face.ethlinstener.ui.activity.EthLinstenerActivity;
+import com.face_chtj.base_iotutils.NetUtils;
+import com.face_chtj.base_iotutils.SPUtils;
 import com.face_chtj.base_iotutils.keeplive.AbsWorkService;
 import com.face_chtj.base_iotutils.keeplive.BaseIotUtils;
 
@@ -29,8 +31,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
-import me.goldze.mvvmhabit.http.NetworkUtil;
-import me.goldze.mvvmhabit.utils.SPUtils;
 
 /**
  * Create on 2019/11/7
@@ -47,7 +47,7 @@ public class EthLinstenerService extends AbsWorkService {
     private Notification.Builder builder = null;
     //自定义的系统通知视图
     private RemoteViews contentView = null;
-    
+
     public static void stopService() {
         //我们现在不再需要服务运行了, 将标志位置为 true
         sShouldStopService = true;
@@ -84,7 +84,7 @@ public class EthLinstenerService extends AbsWorkService {
         builder.setOngoing(true);//滑动不能清除
         builder.setAutoCancel(false);   //点击的时候消失
         manager.notify(14, builder.build());  //参数一为ID，用来区分不同APP的Notification
-        int time = SPUtils.getInstance().getInt("cycleInterval", 1);
+        int time = SPUtils.getInt("cycleInterval", 1);
         Log.e(TAG, "开始任务....，当前的循环周期为：" + time);
         sDisposable = Observable
                 .interval(0, time, TimeUnit.MINUTES)
@@ -99,8 +99,7 @@ public class EthLinstenerService extends AbsWorkService {
                 .subscribe(new Consumer<Long>() {
                     @Override
                     public void accept(Long count) throws Exception {
-                        NetworkUtil.NET_TYPE net_type = NetworkUtil.getNetState(EthLinstenerService.this, "www.baidu.com");
-                        if (net_type != NetworkUtil.NET_TYPE.NET_CNNT_OK) {
+                        if(!NetUtils.ping()){
                             try{
                                 contentView.setTextViewText(R.id.tvEthStatus,"当前以太网状态：网络异常");
                                 manager.notify(14, builder.build());
@@ -125,7 +124,7 @@ public class EthLinstenerService extends AbsWorkService {
                                     contentView.setTextViewText(R.id.tvEthStatus,"当前以太网状态：重置失败");
                                     manager.notify(14,builder.build());
                                 }
-                            }catch(Exception e){
+                            }catch(Throwable e){
                                 e.printStackTrace();
                                 Log.e(TAG,"errMeg:"+e.getMessage());
                                 contentView.setTextViewText(R.id.tvEthStatus,"当前以太网状态：重置失败");
